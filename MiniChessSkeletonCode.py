@@ -122,6 +122,22 @@ class MiniChess:
         return move in self.valid_moves(game_state)
 
     """
+    Check if the move is a capture and if it is GAME OVER    
+    
+    Args: 
+        - game_state:   dictionary | Dictionary representing the current game state
+        - move          tuple | the move which we check the validity of ((start_row, start_col),(end_row, end_col))
+    Returns:
+        - returns content of the opponent piece if it is a capture, otherwise None
+    """
+    def is_capture(self, game_state, move):
+        start, end = move
+        piece = game_state["board"][start[0]][start[1]]
+        target = game_state["board"][end[0]][end[1]]
+        if target != '.' and target[0] != piece[0]:
+            return target
+        return 'none'
+    """
     Modify the board to make a move
 
     Args: 
@@ -139,7 +155,7 @@ class MiniChess:
         game_state["board"][start_row][start_col] = '.'
         game_state["board"][end_row][end_col] = piece
         game_state["turn"] = "black" if game_state["turn"] == "white" else "white"
-
+       
         return game_state
 
     """
@@ -173,7 +189,7 @@ class MiniChess:
         enable = True
         while enable:
             mode = input("input: ")
-            if mode == "1" : enable = False
+            if mode == "0" : enable = False
             else: print("\nFeatures currently not available\nPlease Select Game Mode: [0] H-H, [1] H-Ai, [2] Ai-Ai")
 
         while True:
@@ -187,6 +203,11 @@ class MiniChess:
             if not move or not self.is_valid_move(self.current_game_state, move):
                 print("Invalid move. Try again.")
                 continue
+
+            target = self.is_capture(self.current_game_state, move)
+            if (target) in ['wK', 'bK']:
+                print(' ** GAME OVER **')
+                break
 
             self.make_move(self.current_game_state, move)
 
