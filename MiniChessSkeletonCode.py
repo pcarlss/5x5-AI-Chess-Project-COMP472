@@ -14,41 +14,28 @@ import argparse
 
 class MiniChess:
     def __init__(self):
+        # initialize the game
         self.current_game_state = self.init_board()
-        self.turn_number = 1  # Track the turn number
-        self.timeout = 60  # Example timeout value (in seconds)
-        self.max_turns = 100  # Example maximum number of turns
-        self.play_mode = "H-H"  # Play mode for D1
-        self.trace_file = None  # File object for logging
+        self.turn_number = 1  # how many turns have been played
+        self.timeout = 360  # time limit per move (seconds)
+        self.max_turns = 100  # max number of turns
+        self.play_mode = "H-H"  # default mode
+        self.trace_file = None
 
-    """
-    Initialize the board
-
-    Args:
-        - None
-    Returns:
-        - state: A dictionary representing the state of the game
-    """
+    # initial board state
     def init_board(self):
         state = {
-                "board": 
-                [['bK', 'bQ', 'bB', 'bN', '.'],
-                ['.', '.', 'bp', 'bp', '.'],
-                ['.', '.', '.', '.', '.'],
-                ['.', 'wp', 'wp', '.', '.'],
-                ['.', 'wN', 'wB', 'wQ', 'wK']],
-                "turn": 'white',
-                }
+            "board": 
+            [['bK', 'bQ', 'bB', 'bN', '.'], 
+             ['.', '.', 'bp', 'bp', '.'], 
+             ['.', '.', '.', '.', '.'],     
+             ['.', 'wp', 'wp', '.', '.'],    
+             ['.', 'wN', 'wB', 'wQ', 'wK']], 
+            "turn": 'white',  # white goes first
+        }
         return state
 
-    """
-    Prints the board
-    
-    Args:
-        - game_state: Dictionary representing the current game state
-    Returns:
-        - None
-    """
+    # display state of the board
     def display_board(self, game_state):
         print()
         for i, row in enumerate(game_state["board"], start=1):
@@ -57,120 +44,79 @@ class MiniChess:
         print("     A   B   C   D   E")
         print()
 
-    """
-    Returns a list of valid moves
-
-    Args:
-        - game_state:   dictionary | Dictionary representing the current game state
-    Returns:
-        - valid moves:   list | A list of nested tuples corresponding to valid moves [((start_row, start_col),(end_row, end_col))]
-    """
+    # generate all valid moves that turn
     def valid_moves(self, game_state):
         board = game_state["board"]
         turn = game_state["turn"]
         moves = []
 
+        # how each piece can move
         piece_valid_moves = {
-            'K': [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)],  # King
-            'Q': [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)],  # Queen
-            'N': [(2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (1, -2), (-1, 2), (-1, -2)],  # Knight
-            'B': [(1, 1), (-1, -1), (1, -1), (-1, 1)],  # Bishop
+            'K': [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)],  # King moves
+            'Q': [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)],  # Queen moves
+            'N': [(2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (1, -2), (-1, 2), (-1, -2)],  # Knight moves
+            'B': [(1, 1), (-1, -1), (1, -1), (-1, 1)],  # Bishop moves
         }
 
-        for r in range(5):
-            for c in range(5):
-                piece = board[r][c] # get piece at position [r,c]
-                if piece == '.':
+        # loop through the board, finding all valid moves for each piece
+        for row in range(5):
+            for col in range(5):
+                piece = board[row][col]  # value of specific piece at that point in loop
+                if piece == '.':  # skip empty squares
                     continue
                 
-                piece_type = piece[1] # get first character
+                piece_type = piece[1]  # get piece type
                 piece_color = "white" if piece[0] == 'w' else "black"
 
-                if piece_color != turn: # ignore pieces if not their turn
+                if piece_color != turn:  # skip piece if not its turn
                     continue
 
                 if piece_type in piece_valid_moves:
-                    for dr, dc in piece_valid_moves[piece_type]:
-                        for step in range(1, 5): # max displacement is 4 squares
-                            nr, nc = r + dr * step, c + dc * step
-                            if not (0 <= nr < 5 and 0 <= nc < 5):  # Out of bounds
+                    for d_row, d_col in piece_valid_moves[piece_type]:
+                        for step in range(1, 5):  # board is 5x5 cells
+                            n_row, n_col = row + d_row * step, col + d_col * step
+                            if not (0 <= n_row < 5 and 0 <= n_col < 5):  # out of bound
                                 break
-                            target = board[nr][nc]
-                            if target == '.':  # Empty square
-                                moves.append(((r, c), (nr, nc)))
-                            elif target[0] != piece[0]:
-                                moves.append(((r, c), (nr, nc)))
+                            target = board[n_row][n_col]
+                            if target == '.': # no capture
+                                moves.append(((row, col), (n_row, n_col)))
+                            elif target[0] != piece[0]:  # capture
+                                moves.append(((row, col), (n_row, n_col)))
                                 break
-                            else:  # Friendly piece
+                            else:
                                 break
-                            if piece_type in "KN":  # Knights and Kings move once
+                            if piece_type in "KN":  # knights and kings can't move multiple steps
                                 break
 
-                elif piece_type == 'p':  # Pawn movement
-                    direction = -1 if piece_color == "white" else 1
-                    nr, nc = r + direction, c
-                    if 0 <= nr < 5 and board[nr][nc] == '.':  # Normal move
-                        moves.append(((r, c), (nr, nc)))
-                    for dc in [-1, 1]:  # Capture diagonally
-                        nr, nc = r + direction, c + dc
-                        if 0 <= nr < 5 and 0 <= nc < 5 and board[nr][nc] != '.' and board[nr][nc][0] != piece[0]:
-                            moves.append(((r, c), (nr, nc)))
-
+                elif piece_type == 'p': 
+                    direction = -1 if piece_color == "white" else 1  # move forawrd
+                    n_row, n_col = row + direction, col
+                    if 0 <= n_row < 5 and board[n_row][n_col] == '.':
+                        moves.append(((row, col), (n_row, n_col)))
+                    for d_col in [-1, 1]:  # diagonal capture
+                        n_row, n_col = row + direction, col + d_col
+                        if 0 <= n_row < 5 and 0 <= n_col < 5 and board[n_row][n_col] != '.' and board[n_row][n_col][0] != piece[0]:
+                            moves.append(((row, col), (n_row, n_col)))
         return moves
 
-    """
-    Check if the move is valid    
-    
-    Args: 
-        - game_state:   dictionary | Dictionary representing the current game state
-        - move          tuple | the move which we check the validity of ((start_row, start_col),(end_row, end_col))
-    Returns:
-        - boolean representing the validity of the move
-    """
     def is_valid_move(self, game_state, move):
         return move in self.valid_moves(game_state)
 
-    """
-    Check if the move is a capture and if it is GAME OVER    
-    
-    Args: 
-        - game_state:   dictionary | Dictionary representing the current game state
-        - move          tuple | the move which we check the validity of ((start_row, start_col),(end_row, end_col))
-    Returns:
-        - returns content of the opponent piece if it is a capture, otherwise None
-    """
     def is_capture(self, game_state, move):
         start, end = move
         piece = game_state["board"][start[0]][start[1]]
         target = game_state["board"][end[0]][end[1]]
-        if target != '.' and target[0] != piece[0]:
+        if target != '.' and target[0] != piece[0]:  # If the target is an opponent's piece
             return target
         return 'none'
 
-    """
-    Check if the move is 'queening' to set change from xP to xQ    
-    
-    Args: 
-        - game_state:   dictionary | Dictionary representing the current game state
-        - move          tuple | the move which we check the validity of ((start_row, start_col),(end_row, end_col))
-    Returns:
-        - boolean representing if the move is a 'queening'
-    """
     def is_queening(self, game_state, move):
         start, end = move
         piece = game_state["board"][start[0]][start[1]]
-        if piece[1] == 'p' and (end[0] == 0 or end[0] == 4):
+        if piece[1] == 'p' and (end[0] == 0 or end[0] == 4):  # Pawn reaches the last row
             return True
 
-    """
-    Modify the board to make a move
-
-    Args: 
-        - game_state:   dictionary | Dictionary representing the current game state
-        - move          tuple | the move to perform ((start_row, start_col),(end_row, end_col))
-    Returns:
-        - game_state:   dictionary | Dictionary representing the modified game state
-    """
+    # update the board after move
     def make_move(self, game_state, move):
         start = move[0]
         end = move[1]
@@ -181,20 +127,13 @@ class MiniChess:
         if piece[1] == 'p' and ((piece[0] == 'w' and end_row == 0) or (piece[0] == 'b' and end_row == 4)):
             game_state["board"][end_row][end_col] = piece[0] + 'Q'
         else:
-            game_state["board"][end_row][end_col] = piece
-        game_state["board"][start_row][start_col] = '.'
-        game_state["turn"] = "black" if game_state["turn"] == "white" else "white"
+            game_state["board"][end_row][end_col] = piece 
+        game_state["board"][start_row][start_col] = '.'  # replace current position with empty square
+        game_state["turn"] = "black" if game_state["turn"] == "white" else "white" 
 
         return game_state
 
-    """
-    Parse the input string and modify it into board coordinates
-
-    Args:
-        - move: string representing a move "B2 B3"
-    Returns:
-        - (start, end)  tuple | the move to perform ((start_row, start_col),(end_row, end_col))
-    """
+    # user input transform -> board coordinates
     def parse_input(self, move):
         try:
             start, end = move.split()
@@ -204,20 +143,11 @@ class MiniChess:
         except:
             return None
 
-    """
-    Write the game trace to a file
-
-    Args:
-        - move: tuple | the move to perform ((start_row, start_col),(end_row, end_col))
-    Returns:
-        - None
-    """
+    # log game to file
     def write_trace_file(self, move):
         if not self.trace_file:
-            # Create the trace file at the start of the game
             filename = f"gameTrace-false-{self.timeout}-{self.max_turns}.txt"
             self.trace_file = open(filename, "w")
-            # Write game parameters
             self.trace_file.write(f"Game Parameters:\n")
             self.trace_file.write(f"Timeout: {self.timeout} seconds\n")
             self.trace_file.write(f"Max Turns: {self.max_turns}\n")
@@ -226,45 +156,22 @@ class MiniChess:
             self.trace_file.write("Initial Board Configuration:\n")
             self.trace_file.write(self.board_to_string(self.current_game_state["board"]) + "\n\n")
 
-        # Write move details
+        # Log the move and update the board
         self.trace_file.write(f"Turn #{self.turn_number}: {self.current_game_state['turn'].capitalize()} to move\n")
         self.trace_file.write(f"Action: {self.move_to_string(move)}\n")
         self.trace_file.write("New Board Configuration:\n")
         self.trace_file.write(self.board_to_string(self.current_game_state["board"]) + "\n\n")
 
-    """
-    Convert a move to string format (e.g., "B2 B3")
-
-    Args:
-        - move: tuple | the move to perform ((start_row, start_col),(end_row, end_col))
-    Returns:
-        - str | the move in string format
-    """
     def move_to_string(self, move):
         start, end = move
         start_row, start_col = start
         end_row, end_col = end
         return f"{chr(ord('A') + start_col)}{5 - start_row} {chr(ord('A') + end_col)}{5 - end_row}"
 
-    """
-    Convert the board to a string representation
-
-    Args:
-        - board: list | the board configuration
-    Returns:
-        - str | the board as a string
-    """
     def board_to_string(self, board):
         return '\n'.join([' '.join(piece.rjust(3) for piece in row) for row in board])
 
-    """
-    Game loop
-
-    Args:
-        - None
-    Returns:
-        - None
-    """
+    # MAIN LOOP
     def play(self):
         print("\n\nWelcome to Mini Chess!\nPlease Select Game Mode: [0] H-H, [1] H-Ai, [2] Ai-Ai")
 
@@ -274,6 +181,7 @@ class MiniChess:
             if mode == "0" : enable = False
             else: print("\nFeatures currently not available\nPlease Select Game Mode: [0] H-H, [1] H-Ai, [2] Ai-Ai")
 
+        # GAME
         while True:
             self.display_board(self.current_game_state)
             move = input(f"{self.current_game_state['turn'].capitalize()} to move: ")
@@ -306,7 +214,7 @@ class MiniChess:
                 print('Queening! Pawn promoted to Queen.')
 
             self.make_move(self.current_game_state, move)
-            self.write_trace_file(move)  # Log the move
+            self.write_trace_file(move)
             self.turn_number += 1
 
 if __name__ == "__main__":
