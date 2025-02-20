@@ -146,6 +146,7 @@ class MiniChess:
     # log game to file
     def write_trace_file(self, move):
         if not self.trace_file:
+            # Write the game parameters
             filename = f"gameTrace-false-{self.timeout}-{self.max_turns}.txt"
             self.trace_file = open(filename, "w")
             self.trace_file.write(f"Game Parameters:\n")
@@ -154,13 +155,17 @@ class MiniChess:
             self.trace_file.write(f"Play Mode: {self.play_mode}\n\n")
             # Write initial board configuration
             self.trace_file.write("Initial Board Configuration:\n")
-            self.trace_file.write(self.board_to_string(self.current_game_state["board"]) + "\n\n")
+            self.trace_file.write(self.board_to_string(self.current_game_state["board"]) + "\n")
+            self.trace_file.write("  A   B   C   D   E" + "\n\n")
 
         # Log the move and update the board
-        self.trace_file.write(f"Turn #{self.turn_number}: {self.current_game_state['turn'].capitalize()} to move\n")
-        self.trace_file.write(f"Action: {self.move_to_string(move)}\n")
-        self.trace_file.write("New Board Configuration:\n")
-        self.trace_file.write(self.board_to_string(self.current_game_state["board"]) + "\n\n")
+        if move is not None:
+            # Update the current_game_state['turn'] variable
+            self.trace_file.write(f"Turn #{self.turn_number}: {self.current_game_state['turn'].capitalize()} to move\n")
+            self.trace_file.write(f"Action: {self.move_to_string(move)}\n")
+            self.trace_file.write("New Board Configuration:\n")
+            self.trace_file.write(self.board_to_string(self.current_game_state["board"]) + "\n")
+            self.trace_file.write("  A   B   C   D   E" + "\n\n")
 
     def move_to_string(self, move):
         start, end = move
@@ -174,6 +179,7 @@ class MiniChess:
     # MAIN LOOP
     def play(self):
         print("\n\nWelcome to Mini Chess!\nPlease Select Game Mode: [0] H-H, [1] H-Ai, [2] Ai-Ai")
+        
 
         enable = True
         while enable:
@@ -182,6 +188,8 @@ class MiniChess:
             else: print("\nFeatures currently not available\nPlease Select Game Mode: [0] H-H, [1] H-Ai, [2] Ai-Ai")
 
         # GAME
+        self.write_trace_file(None)  # Write the initial board state and game parameters
+        self.turn_number = 1  # Initialize the turn number
         while True:
             self.display_board(self.current_game_state)
             move = input(f"{self.current_game_state['turn'].capitalize()} to move: ")
