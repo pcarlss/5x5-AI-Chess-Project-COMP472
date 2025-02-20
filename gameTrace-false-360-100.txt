@@ -41,4 +41,4 @@ New Board Configuration:
   .  wN  wB   .  wK
   A   B   C   D   E
 
-Game Over: Black wins!
+Game Over: White wins!

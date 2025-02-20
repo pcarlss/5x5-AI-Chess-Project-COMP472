@@ -213,7 +213,10 @@ class MiniChess:
                 self.write_trace_file(move)
                 print(' ** GAME OVER **')
                 if self.trace_file:
-                    self.trace_file.write(f"Game Over: {self.current_game_state['turn'].capitalize()} wins!\n")
+                    value = self.current_game_state['turn'].capitalize()
+                    if value == "Black": value = "White"
+                    else: value = "Black"
+                    self.trace_file.write(f"Game Over: {value} wins!\n")
                     self.trace_file.close()
                 exit(1)
 
