@@ -161,7 +161,10 @@ class MiniChess:
         # Log the move and update the board
         if move is not None:
             # Update the current_game_state['turn'] variable
-            self.trace_file.write(f"Turn #{self.turn_number}: {self.current_game_state['turn'].capitalize()} to move\n")
+            value = self.current_game_state['turn'].capitalize()
+            if value == "Black": value = "White"
+            else: value = "Black"
+            self.trace_file.write(f"Turn #{self.turn_number}: {value} to move\n")
             self.trace_file.write(f"Action: {self.move_to_string(move)}\n")
             self.trace_file.write("New Board Configuration:\n")
             self.trace_file.write(self.board_to_string(self.current_game_state["board"]) + "\n")
@@ -206,6 +209,8 @@ class MiniChess:
 
             target = self.is_capture(self.current_game_state, move)
             if (target) in ['wK', 'bK']:
+                self.make_move(self.current_game_state, move)
+                self.write_trace_file(move)
                 print(' ** GAME OVER **')
                 if self.trace_file:
                     self.trace_file.write(f"Game Over: {self.current_game_state['turn'].capitalize()} wins!\n")
