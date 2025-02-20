@@ -160,6 +160,7 @@ class MiniChess:
 
         # Log the move and update the board
         if move is not None:
+            # Update the current_game_state['turn'] variable
             value = self.current_game_state['turn'].capitalize()
             if value == "Black": value = "White"
             else: value = "Black"
