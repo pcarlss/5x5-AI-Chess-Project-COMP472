@@ -54,10 +54,10 @@ class MiniChess:
 
 
     # generate all valid moves that turn
-    def valid_moves(self, game_state):
+    def valid_moves(self, game_state, add_bonus=True):
         board = game_state["board"]
         turn = game_state["turn"]
-        moves = []  # This will now store dictionaries with "move" and "value" keys
+        moves = []  # This will store dictionaries with "move" and "value" keys
 
         # Mapping for capture values: king=5, queen=4, bishop=3, knight=2, pawn=1.
         capture_values = {'k': 5, 'q': 4, 'b': 3, 'n': 2, 'p': 1}
@@ -76,7 +76,7 @@ class MiniChess:
                 piece = board[row][col]  # value of specific piece at that point in loop
                 if piece == '.':  # skip empty squares
                     continue
-
+                
                 piece_type = piece[1]  # get piece type
                 piece_color = "white" if piece[0] == 'w' else "black"
 
@@ -90,39 +90,71 @@ class MiniChess:
                             if not (0 <= n_row < 5 and 0 <= n_col < 5):  # out of bound
                                 break
                             target = board[n_row][n_col]
+                            # Determine the base value: 0 if no capture; if capture then use mapping
                             if target == '.':  # no capture
-                                # Append move as a dictionary with "value" initialized to 0 (non-capture)
-                                moves.append({"move": ((row, col), (n_row, n_col)), "value": 0})
+                                base_value = 0
                             elif target[0] != piece[0]:  # capture detected
-                                # Use the mapping to get the value for the captured piece
                                 cap_type = target[1].lower()  # captured piece type in lowercase
-                                value = capture_values.get(cap_type, 0)
-                                moves.append({"move": ((row, col), (n_row, n_col)), "value": value})
-                                break
+                                base_value = capture_values.get(cap_type, 0)
                             else:
                                 break
-                            if piece_type in "KN":  # knights and kings can't move multiple steps
+
+                            candidate_move = ((row, col), (n_row, n_col))
+                            
+                            # Lookahead bonus: simulate the move and check for next-move capture opportunities.
+                            if add_bonus:
+                                temp_state = copy.deepcopy(game_state)
+                                temp_state = self.make_move(temp_state, candidate_move)
+                                # Reset turn to the mover to check for immediate capture opportunities.
+                                temp_state["turn"] = turn
+                                next_moves = self.valid_moves(temp_state, add_bonus=False)
+                                # Instead of a fixed bonus, add the maximum capture value from the next moves.
+                                bonus = max([m["value"] for m in next_moves], default=0)
+                                base_value += bonus
+
+                            moves.append({"move": candidate_move, "value": base_value})
+                            # For capture moves, stop looking further in that direction.
+                            if target != '.' and target[0] != piece[0]:
+                                break
+                            if piece_type in "KN":  # knights and kings move only one step
                                 break
 
                 elif piece_type == 'p': 
-                    direction = -1 if piece_color == "white" else 1  # move forward
+                    direction = -1 if piece_color == "white" else 1  # pawn moves forward
+                    # Forward move (non-capture)
                     n_row, n_col = row + direction, col
                     if 0 <= n_row < 5 and board[n_row][n_col] == '.':
-                        moves.append({"move": ((row, col), (n_row, n_col)), "value": 0})
-                    for d_col in [-1, 1]:  # diagonal capture for pawn
+                        base_value = 0
+                        candidate_move = ((row, col), (n_row, n_col))
+                        if add_bonus:
+                            temp_state = copy.deepcopy(game_state)
+                            temp_state = self.make_move(temp_state, candidate_move)
+                            temp_state["turn"] = turn
+                            next_moves = self.valid_moves(temp_state, add_bonus=False)
+                            bonus = max([m["value"] for m in next_moves], default=0)
+                            base_value += bonus
+                        moves.append({"move": candidate_move, "value": base_value})
+                    # Diagonal capture moves for pawn
+                    for d_col in [-1, 1]:
                         n_row, n_col = row + direction, col + d_col
                         if 0 <= n_row < 5 and 0 <= n_col < 5 and board[n_row][n_col] != '.':
                             if board[n_row][n_col][0] != piece[0]:
-                                # Use the mapping for pawn capture
                                 cap_type = board[n_row][n_col][1].lower()
-                                value = capture_values.get(cap_type, 0)
-                                moves.append({"move": ((row, col), (n_row, n_col)), "value": value})
-        # Optionally, sort the moves from highest to lowest value:
+                                base_value = capture_values.get(cap_type, 0)
+                                candidate_move = ((row, col), (n_row, n_col))
+                                if add_bonus:
+                                    temp_state = copy.deepcopy(game_state)
+                                    temp_state = self.make_move(temp_state, candidate_move)
+                                    temp_state["turn"] = turn
+                                    next_moves = self.valid_moves(temp_state, add_bonus=False)
+                                    bonus = max([m["value"] for m in next_moves], default=0)
+                                    base_value += bonus
+                                moves.append({"move": candidate_move, "value": base_value})
+        # Order the moves from highest to lowest value.
         moves.sort(key=lambda m: m["value"], reverse=True)
         return moves
 
-
-
+    
     # Modified is_valid_move to work with dictionary data structure in valid_moves
     def is_valid_move(self, game_state, move):
         for move_dict in self.valid_moves(game_state):
