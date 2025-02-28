@@ -44,11 +44,23 @@ class MiniChess:
         print("     A   B   C   D   E")
         print()
 
+    # NEW: display the list of valid moves (for debugging/display purposes)
+    def display_valid_moves(self, game_state):
+        moves = self.valid_moves(game_state)
+        # Build a list of move strings formatted as "B2 B3:0"
+        move_strings = [f"{self.move_to_string(move_dict['move'])}:{move_dict['value']}" for move_dict in moves]
+        # Print all moves on one line separated by " - "
+        print("List of Valid Moves: " + " - ".join(move_strings))
+
+
     # generate all valid moves that turn
     def valid_moves(self, game_state):
         board = game_state["board"]
         turn = game_state["turn"]
-        moves = []
+        moves = []  # This will now store dictionaries with "move" and "value" keys
+
+        # Mapping for capture values: king=5, queen=4, bishop=3, knight=2, pawn=1.
+        capture_values = {'k': 5, 'q': 4, 'b': 3, 'n': 2, 'p': 1}
 
         # how each piece can move
         piece_valid_moves = {
@@ -64,7 +76,7 @@ class MiniChess:
                 piece = board[row][col]  # value of specific piece at that point in loop
                 if piece == '.':  # skip empty squares
                     continue
-                
+
                 piece_type = piece[1]  # get piece type
                 piece_color = "white" if piece[0] == 'w' else "black"
 
@@ -78,10 +90,14 @@ class MiniChess:
                             if not (0 <= n_row < 5 and 0 <= n_col < 5):  # out of bound
                                 break
                             target = board[n_row][n_col]
-                            if target == '.': # no capture
-                                moves.append(((row, col), (n_row, n_col)))
-                            elif target[0] != piece[0]:  # capture
-                                moves.append(((row, col), (n_row, n_col)))
+                            if target == '.':  # no capture
+                                # Append move as a dictionary with "value" initialized to 0 (non-capture)
+                                moves.append({"move": ((row, col), (n_row, n_col)), "value": 0})
+                            elif target[0] != piece[0]:  # capture detected
+                                # Use the mapping to get the value for the captured piece
+                                cap_type = target[1].lower()  # captured piece type in lowercase
+                                value = capture_values.get(cap_type, 0)
+                                moves.append({"move": ((row, col), (n_row, n_col)), "value": value})
                                 break
                             else:
                                 break
@@ -89,18 +105,30 @@ class MiniChess:
                                 break
 
                 elif piece_type == 'p': 
-                    direction = -1 if piece_color == "white" else 1  # move forawrd
+                    direction = -1 if piece_color == "white" else 1  # move forward
                     n_row, n_col = row + direction, col
                     if 0 <= n_row < 5 and board[n_row][n_col] == '.':
-                        moves.append(((row, col), (n_row, n_col)))
-                    for d_col in [-1, 1]:  # diagonal capture
+                        moves.append({"move": ((row, col), (n_row, n_col)), "value": 0})
+                    for d_col in [-1, 1]:  # diagonal capture for pawn
                         n_row, n_col = row + direction, col + d_col
-                        if 0 <= n_row < 5 and 0 <= n_col < 5 and board[n_row][n_col] != '.' and board[n_row][n_col][0] != piece[0]:
-                            moves.append(((row, col), (n_row, n_col)))
+                        if 0 <= n_row < 5 and 0 <= n_col < 5 and board[n_row][n_col] != '.':
+                            if board[n_row][n_col][0] != piece[0]:
+                                # Use the mapping for pawn capture
+                                cap_type = board[n_row][n_col][1].lower()
+                                value = capture_values.get(cap_type, 0)
+                                moves.append({"move": ((row, col), (n_row, n_col)), "value": value})
+        # Optionally, sort the moves from highest to lowest value:
+        moves.sort(key=lambda m: m["value"], reverse=True)
         return moves
 
+
+
+    # Modified is_valid_move to work with dictionary data structure in valid_moves
     def is_valid_move(self, game_state, move):
-        return move in self.valid_moves(game_state)
+        for move_dict in self.valid_moves(game_state):
+            if move_dict["move"] == move:
+                return True
+        return False
 
     def is_capture(self, game_state, move):
         start, end = move
@@ -155,8 +183,7 @@ class MiniChess:
             self.trace_file.write(f"Play Mode: {self.play_mode}\n\n")
             # Write initial board configuration
             self.trace_file.write("Initial Board Configuration:\n")
-            self.trace_file.write(self.board_to_string(self.current_game_state["board"]) + "\n")
-            self.trace_file.write("  A   B   C   D   E" + "\n\n")
+            self.trace_file.write(self.board_to_string(self.current_game_state["board"]) + "\n\n")
 
         # Log the move and update the board
         if move is not None:
@@ -164,8 +191,7 @@ class MiniChess:
             self.trace_file.write(f"Turn #{self.turn_number}: {self.current_game_state['turn'].capitalize()} to move\n")
             self.trace_file.write(f"Action: {self.move_to_string(move)}\n")
             self.trace_file.write("New Board Configuration:\n")
-            self.trace_file.write(self.board_to_string(self.current_game_state["board"]) + "\n")
-            self.trace_file.write("  A   B   C   D   E" + "\n\n")
+            self.trace_file.write(self.board_to_string(self.current_game_state["board"]) + "\n\n")
 
     def move_to_string(self, move):
         start, end = move
@@ -174,24 +200,36 @@ class MiniChess:
         return f"{chr(ord('A') + start_col)}{5 - start_row} {chr(ord('A') + end_col)}{5 - end_row}"
 
     def board_to_string(self, board):
-        return '\n'.join([' '.join(piece.rjust(3) for piece in row) for row in board])
+        # Build a list of rows with left-side row numbers (5 to 1) and column header at the bottom
+        lines = []
+        for i, row in enumerate(board, start=1):
+            # Row number is displayed as 6 - i (to count 5 to 1)
+            line = f"{6 - i}  " + ' '.join(piece.rjust(3) for piece in row)
+            lines.append(line)
+        # Add column headers (A to E)
+        lines.append("     A   B   C   D   E")
+        return "\n".join(lines)
 
     # MAIN LOOP
     def play(self):
         print("\n\nWelcome to Mini Chess!\nPlease Select Game Mode: [0] H-H, [1] H-Ai, [2] Ai-Ai")
         
-
         enable = True
         while enable:
             mode = input("input: ")
-            if mode == "0" : enable = False
-            else: print("\nFeatures currently not available\nPlease Select Game Mode: [0] H-H, [1] H-Ai, [2] Ai-Ai")
+            if mode == "0":
+                enable = False
+            else:
+                print("\nFeatures currently not available\nPlease Select Game Mode: [0] H-H, [1] H-Ai, [2] Ai-Ai")
 
         # GAME
         self.write_trace_file(None)  # Write the initial board state and game parameters
         self.turn_number = 1  # Initialize the turn number
         while True:
             self.display_board(self.current_game_state)
+            # NEW: display valid moves at the start of each turn
+            self.display_valid_moves(self.current_game_state)
+
             move = input(f"{self.current_game_state['turn'].capitalize()} to move: ")
             if move.lower() == 'exit':
                 print("Game exited.")
@@ -205,7 +243,7 @@ class MiniChess:
                 continue
 
             target = self.is_capture(self.current_game_state, move)
-            if (target) in ['wK', 'bK']:
+            if target in ['wK', 'bK']:
                 print(' ** GAME OVER **')
                 if self.trace_file:
                     self.trace_file.write(f"Game Over: {self.current_game_state['turn'].capitalize()} wins!\n")
