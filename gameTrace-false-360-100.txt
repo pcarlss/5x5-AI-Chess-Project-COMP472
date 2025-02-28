@@ -1,0 +1,44 @@
+Game Parameters:
+Timeout: 360 seconds
+Max Turns: 100
+Play Mode: H-H
+
+Initial Board Configuration:
+ bK  bQ  bB  bN   .
+  .   .  bp  bp   .
+  .   .   .   .   .
+  .  wp  wp   .   .
+  .  wN  wB  wQ  wK
+  A   B   C   D   E
+
+Turn #1: White to move
+Action: D1 D2
+New Board Configuration:
+ bK  bQ  bB  bN   .
+  .   .  bp  bp   .
+  .   .   .   .   .
+  .  wp  wp  wQ   .
+  .  wN  wB   .  wK
+  A   B   C   D   E
+
+Turn #2: Black to move
+Action: D4 D3
+New Board Configuration:
+ bK  bQ  bB  bN   .
+  .   .  bp   .   .
+  .   .   .  bp   .
+  .  wp  wp  wQ   .
+  .  wN  wB   .  wK
+  A   B   C   D   E
+
+Turn #3: White to move
+Action: D2 A5
+New Board Configuration:
+ wQ  bQ  bB  bN   .
+  .   .  bp   .   .
+  .   .   .  bp   .
+  .  wp  wp   .   .
+  .  wN  wB   .  wK
+  A   B   C   D   E
+
+Game Over: White wins!
