@@ -247,46 +247,62 @@ class MiniChess:
 
     # MAIN LOOP
     def play(self):
-        print("\n\nWelcome to Mini Chess!\nPlease Select Game Mode: [0] H-H, [1] H-Ai, [2] Ai-Ai")
+        print("\n\nWelcome to Mini Chess!")
+        print("Please Select Game Mode: [0] H-H, [1] H-AI, [2] AI-AI")
         
-        enable = True
-        while enable:
+        # Update the mode selection to support H-AI (and optionally AI-AI)
+        while True:
             mode = input("input: ")
             if mode == "0":
-                enable = False
+                self.play_mode = "H-H"
+                break
+            elif mode == "1":
+                self.play_mode = "H-AI"
+                break
+            elif mode == "2":
+                self.play_mode = "AI-AI"
+                break
             else:
-                print("\nFeatures currently not available\nPlease Select Game Mode: [0] H-H, [1] H-Ai, [2] Ai-Ai")
+                print("Invalid selection. Please choose [0] H-H, [1] H-AI, or [2] AI-AI")
 
-        # GAME
-        self.write_trace_file(None)  # Write the initial board state and game parameters
-        self.turn_number = 1  # Initialize the turn number
+        # Write the initial game state to the trace file.
+        self.write_trace_file(None)
+        self.turn_number = 1
+
         while True:
             self.display_board(self.current_game_state)
-            # NEW: display valid moves at the start of each turn
             self.display_valid_moves(self.current_game_state)
-
-            move = input(f"{self.current_game_state['turn'].capitalize()} to move: ")
-            if move.lower() == 'exit':
-                print("Game exited.")
-                if self.trace_file:
-                    self.trace_file.close()
-                exit(1)
-
-            move = self.parse_input(move)
-            if not move or not self.is_valid_move(self.current_game_state, move):
-                print("Invalid move. Try again.")
-                continue
+            
+            # If we are in H-AI mode and it is black's turn (or in AI-AI mode), let the AI choose the move.
+            if (self.play_mode == "H-AI" and self.current_game_state["turn"] == "black") or (self.play_mode == "AI-AI"):
+                valid_moves = self.valid_moves(self.current_game_state)
+                if not valid_moves:
+                    print("No valid moves available for AI. Game over.")
+                    break
+                move = valid_moves[0]["move"]
+                print(f"AI ({self.current_game_state['turn']}) chooses move: {self.move_to_string(move)}")
+            else:
+                # Otherwise, ask the human player for input.
+                move = input(f"{self.current_game_state['turn'].capitalize()} to move: ")
+                if move.lower() == 'exit':
+                    print("Game exited.")
+                    if self.trace_file:
+                        self.trace_file.close()
+                    exit(1)
+                move = self.parse_input(move)
+                if not move or not self.is_valid_move(self.current_game_state, move):
+                    print("Invalid move. Try again.")
+                    continue
 
             target = self.is_capture(self.current_game_state, move)
-            if (target) in ['wK', 'bK']:
+            if target in ['wK', 'bK']:
                 self.make_move(self.current_game_state, move)
                 self.write_trace_file(move)
                 print(' ** GAME OVER **')
                 if self.trace_file:
-                    value = self.current_game_state['turn'].capitalize()
-                    if value == "Black": value = "White"
-                    else: value = "Black"
-                    self.trace_file.write(f"Game Over: {value} wins!\n")
+                    # Determine the winner: if the move captured the king, the winning side is the opposite of the current turn.
+                    winning_side = "White" if self.current_game_state['turn'] == "black" else "Black"
+                    self.trace_file.write(f"Game Over: {winning_side} wins!\n")
                     self.trace_file.close()
                 exit(1)
 
@@ -302,6 +318,7 @@ class MiniChess:
             self.make_move(self.current_game_state, move)
             self.write_trace_file(move)
             self.turn_number += 1
+   
 
 if __name__ == "__main__":
     game = MiniChess()
