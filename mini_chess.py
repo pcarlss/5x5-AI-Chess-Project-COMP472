@@ -90,7 +90,8 @@ class MiniChess:
                             if not (0 <= n_row < 5 and 0 <= n_col < 5):  # out of bound
                                 break
                             target = board[n_row][n_col]
-                            # Determine the base value: 0 if no capture; if capture then use mapping
+                            
+                            # NEW:Determine the base value: 0 if no capture; if capture then use mapping from capture_values
                             if target == '.':  # no capture
                                 base_value = 0
                             elif target[0] != piece[0]:  # capture detected
@@ -101,13 +102,15 @@ class MiniChess:
 
                             candidate_move = ((row, col), (n_row, n_col))
                             
-                            # Lookahead bonus: simulate the move and check for next-move capture opportunities.
+                            # NEW: Lookahead bonus: simulate the move and check for next-move capture opportunities.
                             if add_bonus:
                                 temp_state = copy.deepcopy(game_state)
                                 temp_state = self.make_move(temp_state, candidate_move)
+                                
                                 # Reset turn to the mover to check for immediate capture opportunities.
                                 temp_state["turn"] = turn
                                 next_moves = self.valid_moves(temp_state, add_bonus=False)
+                                
                                 # Instead of a fixed bonus, add the maximum capture value from the next moves.
                                 bonus = max([m["value"] for m in next_moves], default=0)
                                 base_value += bonus
@@ -119,8 +122,9 @@ class MiniChess:
                             if piece_type in "KN":  # knights and kings move only one step
                                 break
 
-                elif piece_type == 'p': 
+                elif piece_type == 'p': # Special case for pawns
                     direction = -1 if piece_color == "white" else 1  # pawn moves forward
+                    
                     # Forward move (non-capture)
                     n_row, n_col = row + direction, col
                     if 0 <= n_row < 5 and board[n_row][n_col] == '.':
@@ -134,6 +138,7 @@ class MiniChess:
                             bonus = max([m["value"] for m in next_moves], default=0)
                             base_value += bonus
                         moves.append({"move": candidate_move, "value": base_value})
+                    
                     # Diagonal capture moves for pawn
                     for d_col in [-1, 1]:
                         n_row, n_col = row + direction, col + d_col
@@ -150,12 +155,13 @@ class MiniChess:
                                     bonus = max([m["value"] for m in next_moves], default=0)
                                     base_value += bonus
                                 moves.append({"move": candidate_move, "value": base_value})
-        # Order the moves from highest to lowest value.
+        
+        # NEW:Order the valid moves from highest to lowest value.
         moves.sort(key=lambda m: m["value"], reverse=True)
         return moves
 
     
-    # Modified is_valid_move to work with dictionary data structure in valid_moves
+    # NEW: Modified is_valid_move to work with dictionary data structure in valid_moves
     def is_valid_move(self, game_state, move):
         for move_dict in self.valid_moves(game_state):
             if move_dict["move"] == move:
@@ -213,6 +219,7 @@ class MiniChess:
             self.trace_file.write(f"Timeout: {self.timeout} seconds\n")
             self.trace_file.write(f"Max Turns: {self.max_turns}\n")
             self.trace_file.write(f"Play Mode: {self.play_mode}\n\n")
+            
             # Write initial board configuration
             self.trace_file.write("Initial Board Configuration:\n")
             self.trace_file.write(self.board_to_string(self.current_game_state["board"]) + "\n\n")
