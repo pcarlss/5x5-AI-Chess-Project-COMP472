@@ -18,10 +18,10 @@ class MiniChess:
         self.current_game_state = self.init_board()
         self.turn_number = 1  # now represents a full turn (White + Black)
         self.timeout = 360  # time limit per move (seconds)
-        self.max_turns = 20  # max number of moves without capture before declaring a draw (this value is in half-moves)
-        self.play_mode = "H-H"  # default mode
-        self.trace_file = None
-        self.eval_choice = None  # "e0" for board evaluation, "e1" for capture value
+        self.max_turns = 20  # maximum number of half turns without capture before a draw  
+        self.play_mode = None  # will be "H-H", "H-Ai", or "Ai-Ai"; will be updated by play()
+        self.trace_file = None  # will be a file object for writing the game trace
+        self.eval_choice = None  # will be "e0", "e1", "e2", or "e3"
         self.moves_without_capture = 0  # counter for moves with no capture
 
     def init_board(self):
@@ -79,6 +79,20 @@ class MiniChess:
                         total -= piece_val
         return total
 
+    def calculate_e2_value(self, board):
+        """
+        Placeholder for evaluation heuristic e2.
+        Define your heuristic logic here.
+        """
+        return 0
+
+    def calculate_e3_value(self, board):
+        """
+        Placeholder for evaluation heuristic e3.
+        Define your heuristic logic here.
+        """
+        return 0
+
     def valid_moves(self, game_state):
         board = game_state["board"]
         turn = game_state["turn"]
@@ -128,6 +142,24 @@ class MiniChess:
                                 moves.append({"move": ((row, col), (n_row, n_col)), "value": value})
                                 if target != '.':
                                     break
+                            elif self.eval_choice == "e2":
+                                new_state = copy.deepcopy(game_state)
+                                new_state = self.make_move(new_state, ((row, col), (n_row, n_col)))
+                                value = self.calculate_e2_value(new_state["board"])
+                                if game_state["turn"] == "black":
+                                    value = -value
+                                moves.append({"move": ((row, col), (n_row, n_col)), "value": value})
+                                if target != '.':
+                                    break
+                            elif self.eval_choice == "e3":
+                                new_state = copy.deepcopy(game_state)
+                                new_state = self.make_move(new_state, ((row, col), (n_row, n_col)))
+                                value = self.calculate_e3_value(new_state["board"])
+                                if game_state["turn"] == "black":
+                                    value = -value
+                                moves.append({"move": ((row, col), (n_row, n_col)), "value": value})
+                                if target != '.':
+                                    break
                             if piece_type in "KN":
                                 break
 
@@ -145,6 +177,20 @@ class MiniChess:
                             if game_state["turn"] == "black":
                                 value = -value
                             moves.append({"move": ((row, col), (n_row, n_col)), "value": value})
+                        elif self.eval_choice == "e2":
+                            new_state = copy.deepcopy(game_state)
+                            new_state = self.make_move(new_state, ((row, col), (n_row, n_col)))
+                            value = self.calculate_e2_value(new_state["board"])
+                            if game_state["turn"] == "black":
+                                value = -value
+                            moves.append({"move": ((row, col), (n_row, n_col)), "value": value})
+                        elif self.eval_choice == "e3":
+                            new_state = copy.deepcopy(game_state)
+                            new_state = self.make_move(new_state, ((row, col), (n_row, n_col)))
+                            value = self.calculate_e3_value(new_state["board"])
+                            if game_state["turn"] == "black":
+                                value = -value
+                            moves.append({"move": ((row, col), (n_row, n_col)), "value": value})
                     # Pawn diagonal capture moves
                     for d_col in [-1, 1]:
                         n_row, n_col = row + direction, col + d_col
@@ -157,6 +203,20 @@ class MiniChess:
                                     new_state = copy.deepcopy(game_state)
                                     new_state = self.make_move(new_state, ((row, col), (n_row, n_col)))
                                     value = self.calculate_e0_value(new_state["board"])
+                                    if game_state["turn"] == "black":
+                                        value = -value
+                                    moves.append({"move": ((row, col), (n_row, n_col)), "value": value})
+                                elif self.eval_choice == "e2":
+                                    new_state = copy.deepcopy(game_state)
+                                    new_state = self.make_move(new_state, ((row, col), (n_row, n_col)))
+                                    value = self.calculate_e2_value(new_state["board"])
+                                    if game_state["turn"] == "black":
+                                        value = -value
+                                    moves.append({"move": ((row, col), (n_row, n_col)), "value": value})
+                                elif self.eval_choice == "e3":
+                                    new_state = copy.deepcopy(game_state)
+                                    new_state = self.make_move(new_state, ((row, col), (n_row, n_col)))
+                                    value = self.calculate_e3_value(new_state["board"])
                                     if game_state["turn"] == "black":
                                         value = -value
                                     moves.append({"move": ((row, col), (n_row, n_col)), "value": value})
@@ -219,7 +279,6 @@ class MiniChess:
             self.trace_file.write(self.board_to_string(self.current_game_state["board"]) + "\n\n")
 
         if move is not None:
-            # In the trace file, we still report the turn number as stored.
             next_turn = self.current_game_state['turn'].capitalize()
             next_turn = "White" if next_turn == "Black" else "Black"
             self.trace_file.write(f"Turn #{self.turn_number}: {next_turn} to move\n")
@@ -245,55 +304,78 @@ class MiniChess:
         print("\n\nWelcome to Mini Chess!")
         print("Please Select Game Mode: [0] H-H, [1] H-Ai, [2] Ai-Ai")
         
-        enable = True
-        while enable:
-            mode = input("input: ")
-            if mode == "0":
-                enable = False
+        mode_valid = False
+        while not mode_valid:
+            mode_input = input("input: ")
+            if mode_input == "0":
+                self.play_mode = "H-H"
+                mode_valid = True
+            elif mode_input == "1":
+                self.play_mode = "H-Ai"
+                mode_valid = True
+            elif mode_input == "2":
+                self.play_mode = "Ai-Ai"
+                mode_valid = True
             else:
-                print("\nFeatures currently not available")
-                print("Please Select Game Mode: [0] H-H, [1] H-Ai, [2] Ai-Ai")
+                print("Invalid mode. Please enter 0, 1, or 2.")
 
-        # Choose evaluation method for move values
+        # Choose evaluation method for move values.
         eval_enable = True
         while eval_enable:
-            choice = input("Choose evaluation type for move values: [0] e0, [1] e1: ")
+            choice = input("Choose evaluation type for move values: [0] e0, [1] e1, [2] e2, [3] e3: ")
             if choice == "0":
                 self.eval_choice = "e0"
                 eval_enable = False
             elif choice == "1":
                 self.eval_choice = "e1"
                 eval_enable = False
+            elif choice == "2":
+                self.eval_choice = "e2"
+                eval_enable = False
+            elif choice == "3":
+                self.eval_choice = "e3"
+                eval_enable = False
             else:
-                print("Invalid choice. Please enter 0 or 1.")
+                print("Invalid choice. Please enter 0, 1, 2 or 3.")
 
         self.write_trace_file(None)
         # Reset turn_number; now it represents full turns.
         self.turn_number = 1
-        
+
         while True:
             self.display_board(self.current_game_state)
             self.display_valid_moves(self.current_game_state)
-            # Store current mover (either "white" or "black")
             current_mover = self.current_game_state["turn"]
-            move = input(f"Turn {self.turn_number}: {current_mover.capitalize()} to move: ")
-            if move.lower() == 'exit':
-                print("Game exited.")
-                if self.trace_file:
-                    self.trace_file.close()
-                exit(1)
 
-            move = self.parse_input(move)
-            if not move or not self.is_valid_move(self.current_game_state, move):
-                print("Invalid move. Try again.")
-                continue
+            # Determine if the current move is inputted by a human or chosen by the AI.
+            if (self.play_mode == "H-H") or (self.play_mode == "H-Ai" and current_mover == "white"):
+                move_input = input(f"Turn {self.turn_number}: {current_mover.capitalize()} to move: ")
+                if move_input.lower() == 'exit':
+                    print("Game exited.")
+                    if self.trace_file:
+                        self.trace_file.close()
+                    exit(1)
+                move = self.parse_input(move_input)
+                if not move or not self.is_valid_move(self.current_game_state, move):
+                    print("Invalid move. Try again.")
+                    continue
+            else:
+                # AI move: choose the first move from the sorted list of valid moves.
+                moves = self.valid_moves(self.current_game_state)
+                if not moves:
+                    print("No valid moves available for AI.")
+                    exit(0)
+                move = moves[0]["move"]
+                print(f"Turn {self.turn_number}: {current_mover.capitalize()} (AI) chooses move: {self.move_to_string(move)}")
 
-            # Check for capture before applying the move
+            # Check for capture before applying the move.
             target = self.is_capture(self.current_game_state, move)
             if target in ['wK', 'bK']:
                 self.make_move(self.current_game_state, move)
                 self.write_trace_file(move)
-                print(' ** GAME OVER **')
+                print("****************************")
+                print('*         GAME OVER        *')
+                print("****************************")
                 if self.trace_file:
                     next_turn = self.current_game_state['turn'].capitalize()
                     next_turn = "White" if next_turn == "Black" else "Black"
@@ -301,7 +383,6 @@ class MiniChess:
                     self.trace_file.close()
                 exit(1)
 
-            # Update moves_without_capture counter.
             if target != 'none':
                 print('Capture! ', target, 'is enslaved.')
                 self.moves_without_capture = 0
@@ -310,7 +391,9 @@ class MiniChess:
 
             # Check if draw condition is met.
             if self.moves_without_capture >= self.max_turns:
-                print("** DRAW **")
+                print("****************************")
+                print('*     DRAW - NO WINNER     *')
+                print("****************************")
                 if self.trace_file:
                     self.trace_file.write("Game Over: DRAW\n")
                     self.trace_file.close()
@@ -326,7 +409,7 @@ class MiniChess:
             self.make_move(self.current_game_state, move)
             self.write_trace_file(move)
             
-            # If Black just moved, increment the turn number (as a full turn is complete)
+            # If Black just moved, increment the full turn number.
             if current_mover == "black":
                 self.turn_number += 1
 
