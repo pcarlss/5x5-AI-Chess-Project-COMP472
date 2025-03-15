@@ -5,7 +5,7 @@
 # 28840024
 
 # COEN 472 Artificial Intelligence
-# Deliverable 1 (H vs H)
+# Deliverable 2
 
 import math
 import copy
@@ -324,8 +324,9 @@ class MiniChess:
             self.trace_file = open(filename, "w")
             self.trace_file.write("Game Parameters:\n")
             self.trace_file.write(f"Timeout: {self.timeout} seconds\n")
-            self.trace_file.write(f"Max Turns (moves without capture): {self.max_turns}\n")
-            self.trace_file.write(f"Play Mode: {self.play_mode}\n\n")
+            self.trace_file.write(f"Max Turns (half-moves without capture): {self.max_turns}\n")
+            self.trace_file.write(f"Play Mode: {self.play_mode}\n")
+            self.trace_file.write(f"Heuristic Choice: {self.eval_choice}\n\n")
             self.trace_file.write("Initial Board Configuration:\n")
             self.trace_file.write(self.board_to_string(self.current_game_state["board"]) + "\n\n")
         if move is not None:
@@ -388,7 +389,10 @@ class MiniChess:
                 print("Invalid mode. Please enter 0, 1, or 2.")
         eval_enable: bool = True
         while eval_enable:
-            choice: str = input("Choose evaluation type for move values: [0] e0, [1] e1, [2] e2, [3] e3: ")
+            
+            print("\nChoose heuristic to evaluate moves: [0] e0, [1] e1, [2] e2, [3] e3: ")
+            print("\n e0 - Static Mass Evaluation\n e1 - Direct Capture Evaluation\n e2 - Minimax Evaluation\n e3 - Minimax w/ Alpha-Beta Pruning (e3)")
+            choice: str = input("input: ")
             if choice == "0":
                 self.eval_choice = "e0"
                 eval_enable = False
