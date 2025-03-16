@@ -13,7 +13,8 @@ import time
 import argparse
 from typing import List, Dict, Tuple, Optional, Any
 
-BOARD_SIZE: int = 5
+DEBUG = True  # Set to True to print debug messages
+BOARD_SIZE: int = 5  # Size of the board (5x5)
 RECURSION_DEPTH: int = 4  # Depth for minimax searches
 CAPTURE_VALUES: Dict[str, int] = {'k': 999, 'q': 9, 'b': 3, 'n': 3, 'p': 1}
 
@@ -157,7 +158,6 @@ class MiniChess:
                 value = -value
             return value
 
-        # Non-static evaluation mode: use the chosen heuristic.
         if self.eval_choice == "e1":
             if target == '.':
                 return 0
@@ -175,15 +175,19 @@ class MiniChess:
         elif self.eval_choice == "e2":
             new_state = copy.deepcopy(game_state)
             new_state = self.make_move(new_state, move)
-            # Use plain negamax search with static_eval=True so that internal moves use e0.
             value = self.negamax(new_state, RECURSION_DEPTH, static_eval=True)
             if game_state["turn"] == "black":
                 value = -value
             return value
         elif self.eval_choice == "e3":
             new_state = copy.deepcopy(game_state)
+            if DEBUG:
+                print("DEBUG (e3): Original game state before move:", self.move_to_string(move))
+                self.display_board(game_state)
             new_state = self.make_move(new_state, move)
-            # Use negamax with alpha-beta pruning with static_eval=True.
+            if DEBUG:
+                print("DEBUG (e3): New game state after applying move:", self.move_to_string(move))
+                self.display_board(new_state)
             value = self.negamax_alphabeta(new_state, RECURSION_DEPTH, -int(1e9), int(1e9), static_eval=True)
             if game_state["turn"] == "black":
                 value = -value
@@ -219,6 +223,7 @@ class MiniChess:
                 if piece_color != turn:
                     continue
 
+                # For sliding and stepping pieces (K, Q, N, B).
                 if piece_type in piece_valid_moves:
                     for d_row, d_col in piece_valid_moves[piece_type]:
                         for step in range(1, BOARD_SIZE + 1):
@@ -228,12 +233,19 @@ class MiniChess:
                                 break
                             target: str = board[n_row][n_col]
                             move_tuple: Tuple[Tuple[int, int], Tuple[int, int]] = ((row, col), (n_row, n_col))
-                            move_value: int = self.evaluate_move(game_state, move_tuple, piece, target, static_eval)
-                            moves.append({"move": move_tuple, "value": move_value})
-                            if target != '.':
-                                break
+                            if target == '.':
+                                move_value: int = self.evaluate_move(game_state, move_tuple, piece, target, static_eval)
+                                moves.append({"move": move_tuple, "value": move_value})
+                            else:
+                                # If target is occupied, only add if enemy piece.
+                                if target[0] != piece[0]:
+                                    move_value: int = self.evaluate_move(game_state, move_tuple, piece, target, static_eval)
+                                    moves.append({"move": move_tuple, "value": move_value})
+                                break  # Stop moving in this direction.
+                            # For non-sliding pieces (King, Knight), only consider one step.
                             if piece_type in "KN":
                                 break
+                # Pawn moves.
                 elif piece_type == 'p':
                     direction: int = -1 if piece_color == "white" else 1
                     # Pawn forward move.
@@ -245,10 +257,11 @@ class MiniChess:
                     # Pawn diagonal capture moves.
                     for d_col in [-1, 1]:
                         n_row, n_col = row + direction, col + d_col
-                        if 0 <= n_row < BOARD_SIZE and 0 <= n_col < BOARD_SIZE and board[n_row][n_col] != '.':
-                            if board[n_row][n_col][0] != piece[0]:
+                        if 0 <= n_row < BOARD_SIZE and 0 <= n_col < BOARD_SIZE:
+                            target = board[n_row][n_col]
+                            if target != '.' and target[0] != piece[0]:
                                 move_tuple = ((row, col), (n_row, n_col))
-                                move_value = self.evaluate_move(game_state, move_tuple, piece, board[n_row][n_col], static_eval)
+                                move_value = self.evaluate_move(game_state, move_tuple, piece, target, static_eval)
                                 moves.append({"move": move_tuple, "value": move_value})
         moves.sort(key=lambda m: m["value"], reverse=True)
         return moves
@@ -389,7 +402,6 @@ class MiniChess:
                 print("Invalid mode. Please enter 0, 1, or 2.")
         eval_enable: bool = True
         while eval_enable:
-            
             print("\nChoose heuristic to evaluate moves: [0] e0, [1] e1, [2] e2, [3] e3: ")
             print("\n e0 - Static Mass Evaluation\n e1 - Direct Capture Evaluation\n e2 - Minimax Evaluation\n e3 - Minimax w/ Alpha-Beta Pruning (e3)")
             choice: str = input("input: ")
@@ -430,10 +442,11 @@ class MiniChess:
                 print(f"Turn {self.turn_number}: {current_mover.capitalize()} (AI) chooses move: {self.move_to_string(move)}")
             target: str = self.is_capture(self.current_game_state, move)
             if target in ['wK', 'bK']:
+                winner = 'WHITE' if target == 'bK' else 'BLACK'
                 self.make_move(self.current_game_state, move)
                 self.write_trace_file(move)
                 print("****************************")
-                print("*         GAME OVER        *")
+                print("*  GAME OVER- "+ winner + " WINS  *")
                 print("****************************")
                 if self.trace_file:
                     next_turn: str = self.current_game_state['turn'].capitalize()
