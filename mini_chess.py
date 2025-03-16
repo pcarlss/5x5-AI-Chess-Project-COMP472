@@ -15,7 +15,7 @@ from typing import List, Dict, Tuple, Optional, Any
 
 DEBUG = False  # Set to True to print debug messages
 BOARD_SIZE: int = 5  # Size of the board (5x5)
-RECURSION_DEPTH: int = 5  # Depth for minimax searches
+RECURSION_DEPTH: int = 4  # Depth for minimax searches
 CAPTURE_VALUES: Dict[str, int] = {'k': 999, 'q': 9, 'b': 3, 'n': 3, 'p': 1}
 
 class MiniChess:
