@@ -13,9 +13,9 @@ import time
 import argparse
 from typing import List, Dict, Tuple, Optional, Any
 
-DEBUG = True  # Set to True to print debug messages
+DEBUG = False  # Set to True to print debug messages
 BOARD_SIZE: int = 5  # Size of the board (5x5)
-RECURSION_DEPTH: int = 4  # Depth for minimax searches
+RECURSION_DEPTH: int = 5  # Depth for minimax searches
 CAPTURE_VALUES: Dict[str, int] = {'k': 999, 'q': 9, 'b': 3, 'n': 3, 'p': 1}
 
 class MiniChess:
@@ -158,28 +158,28 @@ class MiniChess:
                 value = -value
             return value
 
-        if self.eval_choice == "e1":
+        if self.eval_choice == "e1-Capture evaluation":
             if target == '.':
                 return 0
             elif target[0] != piece[0]:
                 return self.calculate_e1_value(target)
             else:
                 return 0
-        elif self.eval_choice == "e0":
+        elif self.eval_choice == "e0-Mass evaluation":
             new_state = copy.deepcopy(game_state)
             new_state = self.make_move(new_state, move)
             value = self.calculate_e0_value(new_state["board"])
             if game_state["turn"] == "black":
                 value = -value
             return value
-        elif self.eval_choice == "e2":
+        elif self.eval_choice == "e2-Minimax evaluation":
             new_state = copy.deepcopy(game_state)
             new_state = self.make_move(new_state, move)
             value = self.negamax(new_state, RECURSION_DEPTH, static_eval=True)
             if game_state["turn"] == "black":
                 value = -value
             return value
-        elif self.eval_choice == "e3":
+        elif self.eval_choice == "e3-Minimax w/ Alpha-Beta Pruning":
             new_state = copy.deepcopy(game_state)
             if DEBUG:
                 print("DEBUG (e3): Original game state before move:", self.move_to_string(move))
@@ -403,19 +403,19 @@ class MiniChess:
         eval_enable: bool = True
         while eval_enable:
             print("\nChoose heuristic to evaluate moves: [0] e0, [1] e1, [2] e2, [3] e3: ")
-            print("\n e0 - Static Mass Evaluation\n e1 - Direct Capture Evaluation\n e2 - Minimax Evaluation\n e3 - Minimax w/ Alpha-Beta Pruning (e3)")
+            print("\n [0] - e0 - Static Mass Evaluation\n [1] - e1 - Direct Capture Evaluation\n [2] - e2 - Minimax Evaluation\n [3] - e3 - Minimax w/ Alpha-Beta Pruning")
             choice: str = input("input: ")
             if choice == "0":
-                self.eval_choice = "e0"
+                self.eval_choice = "e0-Mass evaluation"
                 eval_enable = False
             elif choice == "1":
-                self.eval_choice = "e1"
+                self.eval_choice = "e1-Direct capture"
                 eval_enable = False
             elif choice == "2":
-                self.eval_choice = "e2"
+                self.eval_choice = "e2-Minimax evaluation"
                 eval_enable = False
             elif choice == "3":
-                self.eval_choice = "e3"
+                self.eval_choice = "e3-Minimax w/ Alpha-Beta Pruning"
                 eval_enable = False
             else:
                 print("Invalid choice. Please enter 0, 1, 2 or 3.")
