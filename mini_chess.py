@@ -32,6 +32,8 @@ class MiniChess:
         self.trace_file: Optional[Any] = None  # File object for writing the game trace
         self.eval_choice: Optional[str] = None  # "e0", "e1", "e2", or "e3"
         self.moves_without_capture: int = 0  # Counter for half-moves with no capture
+        # Dictionary to track number of explored states by depth (from 1 to RECURSION_DEPTH)
+        self.explored_by_depth: Dict[int, int] = {i: 0 for i in range(1, RECURSION_DEPTH + 1)}
 
     def init_board(self) -> Dict[str, Any]:
         """
@@ -48,6 +50,78 @@ class MiniChess:
             "turn": 'white'  # White starts
         }
         return state
+
+    def deep_copy_state(self, game_state: Dict[str, Any], current_depth: int = None) -> Dict[str, Any]:
+        """
+        Return a deep copy of the game state.
+        Only count the deep copy if a current_depth value is provided (i.e. when in minimax search).
+        (Each deep copy with a depth represents an explored state in the search tree.)
+        """
+        if current_depth is not None and (self.play_mode in ("H-Ai", "Ai-Ai")) and (self.eval_choice in ("e2-Minimax evaluation", "e3-Minimax w/ Alpha-Beta Pruning")):
+            self.explored_by_depth[current_depth] += 1
+        return copy.deepcopy(game_state)
+
+    def simulate_move(self, game_state: Dict[str, Any], move: Tuple[Tuple[int, int], Tuple[int, int]], current_depth: int) -> Dict[str, Any]:
+        """
+        Create a new game state by deep copying and then executing a move.
+        This reduces duplicate code in search functions.
+        """
+        new_state: Dict[str, Any] = self.deep_copy_state(game_state, current_depth)
+        new_state = self.make_move(new_state, move)
+        return new_state
+
+    def minimax_search(self, game_state: Dict[str, Any], depth: int, maximizing_player: bool, static_eval: bool = False, alpha: Optional[int] = None, beta: Optional[int] = None) -> int:
+        """
+        Combined minimax search function.
+        If alpha and beta are provided (not None), perform alpha–beta pruning.
+        Otherwise, perform plain minimax search.
+        Returns the evaluation value (from White's perspective) based on the static evaluation function.
+        The parameter maximizing_player indicates whether the current node is for the maximizing player (white).
+        """
+        if depth == 0 or self.is_terminal(game_state):
+            return self.calculate_e0_value(game_state["board"])
+        
+        # Compute current depth from the root (node "0" is the initial state, not counted)
+        current_depth: int = RECURSION_DEPTH - depth + 1
+
+        # Plain minimax search.
+        if alpha is None or beta is None:
+            if maximizing_player:
+                best_value: int = -float('inf')
+                for move_dict in self.valid_moves(game_state, static_eval=static_eval):
+                    new_state: Dict[str, Any] = self.simulate_move(game_state, move_dict["move"], current_depth)
+                    value: int = self.minimax_search(new_state, depth - 1, False, static_eval)
+                    best_value = max(best_value, value)
+                return best_value
+            else:
+                best_value: int = float('inf')
+                for move_dict in self.valid_moves(game_state, static_eval=static_eval):
+                    new_state: Dict[str, Any] = self.simulate_move(game_state, move_dict["move"], current_depth)
+                    value: int = self.minimax_search(new_state, depth - 1, True, static_eval)
+                    best_value = min(best_value, value)
+                return best_value
+        # Minimax search with alpha-beta pruning.
+        else:
+            if maximizing_player:
+                best_value: int = -float('inf')
+                for move_dict in self.valid_moves(game_state, static_eval=static_eval):
+                    new_state: Dict[str, Any] = self.simulate_move(game_state, move_dict["move"], current_depth)
+                    value: int = self.minimax_search(new_state, depth - 1, False, static_eval, alpha, beta)
+                    best_value = max(best_value, value)
+                    alpha = max(alpha, value)
+                    if alpha >= beta:
+                        break
+                return best_value
+            else:
+                best_value: int = float('inf')
+                for move_dict in self.valid_moves(game_state, static_eval=static_eval):
+                    new_state: Dict[str, Any] = self.simulate_move(game_state, move_dict["move"], current_depth)
+                    value: int = self.minimax_search(new_state, depth - 1, True, static_eval, alpha, beta)
+                    best_value = min(best_value, value)
+                    beta = min(beta, value)
+                    if alpha >= beta:
+                        break
+                return best_value
 
     def display_board(self, game_state: Dict[str, Any]) -> None:
         """
@@ -66,7 +140,7 @@ class MiniChess:
         """
         moves: List[Dict[str, Any]] = self.valid_moves(game_state, static_eval=False)
         move_strings: List[str] = [f"{self.move_to_string(m['move'])}:{m['value']}" for m in moves]
-        print("List of Valid Moves: " + " - ".join(move_strings) + "\n\n")
+        print("List of Valid Moves: " + " - ".join(move_strings))
 
     def calculate_e1_value(self, target: str) -> int:
         """
@@ -104,41 +178,6 @@ class MiniChess:
         black_king: bool = any('bK' in row for row in board)
         return not (white_king and black_king)
 
-    def negamax(self, game_state: Dict[str, Any], depth: int, static_eval: bool = False) -> int:
-        """
-        Plain negamax search (minimax without pruning) to a given depth.
-        Returns the evaluation value from the perspective of the current player.
-        When static_eval is True, valid_moves uses only static evaluation (e0).
-        """
-        if depth == 0 or self.is_terminal(game_state):
-            return self.calculate_e0_value(game_state["board"])
-        best_value: int = -float('inf')
-        for move_dict in self.valid_moves(game_state, static_eval=static_eval):
-            new_state: Dict[str, Any] = copy.deepcopy(game_state)
-            new_state = self.make_move(new_state, move_dict["move"])
-            value: int = -self.negamax(new_state, depth - 1, static_eval=static_eval)
-            best_value = max(best_value, value)
-        return best_value
-
-    def negamax_alphabeta(self, game_state: Dict[str, Any], depth: int,
-                           alpha: int, beta: int, static_eval: bool = False) -> int:
-        """
-        Negamax search with alpha–beta pruning to a given depth.
-        Returns the evaluation value from the perspective of the current player.
-        """
-        if depth == 0 or self.is_terminal(game_state):
-            return self.calculate_e0_value(game_state["board"])
-        best_value: int = -float('inf')
-        for move_dict in self.valid_moves(game_state, static_eval=static_eval):
-            new_state: Dict[str, Any] = copy.deepcopy(game_state)
-            new_state = self.make_move(new_state, move_dict["move"])
-            value: int = -self.negamax_alphabeta(new_state, depth - 1, -beta, -alpha, static_eval=static_eval)
-            best_value = max(best_value, value)
-            alpha = max(alpha, value)
-            if alpha >= beta:
-                break
-        return best_value
-
     def evaluate_move(self, game_state: Dict[str, Any],
                       move: Tuple[Tuple[int, int], Tuple[int, int]],
                       piece: str, target: str,
@@ -152,14 +191,14 @@ class MiniChess:
         If it is Black’s turn in the original state, the evaluation is negated.
         """
         if static_eval:
-            new_state: Dict[str, Any] = copy.deepcopy(game_state)
+            new_state: Dict[str, Any] = self.deep_copy_state(game_state)
             new_state = self.make_move(new_state, move)
             value: int = self.calculate_e0_value(new_state["board"])
             if game_state["turn"] == "black":
                 value = -value
             return value
 
-        if self.eval_choice == "e1-Capture evaluation":
+        if self.eval_choice == "e1-Direct capture":
             if target == '.':
                 return 0
             elif target[0] != piece[0]:
@@ -167,21 +206,23 @@ class MiniChess:
             else:
                 return 0
         elif self.eval_choice == "e0-Mass evaluation":
-            new_state = copy.deepcopy(game_state)
+            new_state = self.deep_copy_state(game_state)
             new_state = self.make_move(new_state, move)
             value = self.calculate_e0_value(new_state["board"])
             if game_state["turn"] == "black":
                 value = -value
             return value
         elif self.eval_choice == "e2-Minimax evaluation":
-            new_state = copy.deepcopy(game_state)
+            new_state = self.deep_copy_state(game_state)
             new_state = self.make_move(new_state, move)
-            value = self.negamax(new_state, RECURSION_DEPTH, static_eval=True)
+            # Determine maximizing player based on new_state's turn.
+            maximizing: bool = True if new_state["turn"] == "white" else False
+            value = self.minimax_search(new_state, RECURSION_DEPTH, maximizing, static_eval=True)
             if game_state["turn"] == "black":
                 value = -value
             return value
         elif self.eval_choice == "e3-Minimax w/ Alpha-Beta Pruning":
-            new_state = copy.deepcopy(game_state)
+            new_state = self.deep_copy_state(game_state)
             if DEBUG:
                 print("DEBUG (e3): Original game state before move:", self.move_to_string(move))
                 self.display_board(game_state)
@@ -189,7 +230,9 @@ class MiniChess:
             if DEBUG:
                 print("DEBUG (e3): New game state after applying move:", self.move_to_string(move))
                 self.display_board(new_state)
-            value = self.negamax_alphabeta(new_state, RECURSION_DEPTH, -int(1e9), int(1e9), static_eval=True)
+            # Determine maximizing player based on new_state's turn.
+            maximizing: bool = True if new_state["turn"] == "white" else False
+            value = self.minimax_search(new_state, RECURSION_DEPTH, maximizing, static_eval=True, alpha=-int(1e9), beta=int(1e9))
             if game_state["turn"] == "black":
                 value = -value
             return value
@@ -332,6 +375,8 @@ class MiniChess:
     def write_trace_file(self, move: Optional[Tuple[Tuple[int, int], Tuple[int, int]]]) -> None:
         """
         Write game parameters and moves to a trace file.
+        Also record the cumulative number of game states explored and a breakdown by depth under the proper conditions,
+        along with the average branching factor.
         """
         if not self.trace_file:
             filename: str = f"gameTrace-false-{self.timeout}-{self.max_turns}.txt"
@@ -350,6 +395,28 @@ class MiniChess:
             self.trace_file.write(f"Action: {self.move_to_string(move)}\n")
             self.trace_file.write("New Board Configuration:\n")
             self.trace_file.write(self.board_to_string(self.current_game_state["board"]) + "\n\n")
+            if self.play_mode in ("H-Ai", "Ai-Ai") and self.eval_choice in ("e2-Minimax evaluation", "e3-Minimax w/ Alpha-Beta Pruning"):
+                total = sum(self.explored_by_depth.values())
+                breakdown_parts = []
+                for depth in range(1, RECURSION_DEPTH + 1):
+                    count = self.explored_by_depth[depth]
+                    perc = (count / total) * 100 if total > 0 else 0
+                    if perc < 1:
+                        perc_str = f"{perc:.1f}%"
+                    else:
+                        perc_str = f"{int(perc)}%"
+                    breakdown_parts.append(f"{depth}={count:,} ({perc_str})")
+                self.trace_file.write("CSE by depth: " + " ".join(breakdown_parts) + "\n")
+                # Calculate average branching factor from level 2 onward
+                branch_factors = []
+                if self.explored_by_depth[1] > 0:
+                    prev = self.explored_by_depth[1]
+                    for depth in range(2, RECURSION_DEPTH + 1):
+                        if prev != 0:
+                            branch_factors.append(self.explored_by_depth[depth] / prev)
+                        prev = self.explored_by_depth[depth]
+                avg_branch = sum(branch_factors)/len(branch_factors) if branch_factors else 0
+                self.trace_file.write("Average Branching Factor: " + f"{avg_branch:.2f}" + "\n")
 
     def move_to_string(self, move: Tuple[Tuple[int, int], Tuple[int, int]]) -> str:
         """
@@ -393,6 +460,7 @@ class MiniChess:
     def play(self) -> None:
         """
         Main game loop handling mode selection, move input, AI moves, and game termination.
+        Also displays the cumulative number of game states explored and a breakdown by depth along with the average branching factor (if conditions are met).
         """
         print("\n\nWelcome to Mini Chess!")
         print("Please Select Game Mode: [0] H-H, [1] H-Ai, [2] Ai-Ai")
@@ -434,6 +502,30 @@ class MiniChess:
         while True:
             self.display_board(self.current_game_state)
             self.display_valid_moves(self.current_game_state)
+            # If in H-Ai or Ai-Ai mode and using e2 or e3, display the cumulative count, breakdown, and average branching factor.
+            if self.play_mode in ("H-Ai", "Ai-Ai") and self.eval_choice in ("e2-Minimax evaluation", "e3-Minimax w/ Alpha-Beta Pruning"):
+                total = sum(self.explored_by_depth.values())
+                print("Cumulative Number of Game States Explored:", f"{total:,}")
+                breakdown_parts = []
+                for depth in range(1, RECURSION_DEPTH + 1):
+                    count = self.explored_by_depth[depth]
+                    perc = (count / total) * 100 if total > 0 else 0
+                    if perc < 1:
+                        perc_str = f"{perc:.1f}%"
+                    else:
+                        perc_str = f"{int(perc)}%"
+                    breakdown_parts.append(f"{depth}={count:,} ({perc_str})")
+                print("CSE by depth:", " ".join(breakdown_parts))
+                # Calculate average branching factor from level 2 onward
+                branch_factors = []
+                if self.explored_by_depth[1] > 0:
+                    prev = self.explored_by_depth[1]
+                    for depth in range(2, RECURSION_DEPTH + 1):
+                        if prev != 0:
+                            branch_factors.append(self.explored_by_depth[depth] / prev)
+                        prev = self.explored_by_depth[depth]
+                avg_branch = sum(branch_factors)/len(branch_factors) if branch_factors else 0
+                print("Average Branching Factor:", f"{avg_branch:.2f}")
             current_mover: str = self.current_game_state["turn"]
             if (self.play_mode == "H-H") or (self.play_mode == "H-Ai" and current_mover == "white"):
                 move_input: str = input(f"Turn {self.turn_number}: {current_mover.capitalize()} to move: ")
@@ -449,7 +541,7 @@ class MiniChess:
                 move = move_option
             else:
                 move = self.get_ai_move(self.current_game_state)
-                print(f"Turn {self.turn_number}: {current_mover.capitalize()} (AI) chooses move: {self.move_to_string(move)}")
+                print(f"\nTurn {self.turn_number}: {current_mover.capitalize()} (AI) chooses move: {self.move_to_string(move)}")
             target: str = self.is_capture(self.current_game_state, move)
             if target in ['wK', 'bK']:
                 winner = 'WHITE' if target == 'bK' else 'BLACK'
