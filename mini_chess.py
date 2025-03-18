@@ -11,6 +11,7 @@ import math
 import copy
 import time
 import argparse
+import random
 from typing import List, Dict, Tuple, Optional, Any
 
 DEBUG = False  # Set to True to print debug messages
@@ -65,7 +66,7 @@ class MiniChess:
         """
         moves: List[Dict[str, Any]] = self.valid_moves(game_state, static_eval=False)
         move_strings: List[str] = [f"{self.move_to_string(m['move'])}:{m['value']}" for m in moves]
-        print("List of Valid Moves: " + " - ".join(move_strings))
+        print("List of Valid Moves: " + " - ".join(move_strings) + "\n\n")
 
     def calculate_e1_value(self, target: str) -> int:
         """
@@ -369,16 +370,25 @@ class MiniChess:
             lines.append(line)
         lines.append("     A   B   C   D   E")
         return "\n".join(lines)
-
+    
     def get_ai_move(self, game_state: Dict[str, Any]) -> Tuple[Tuple[int, int], Tuple[int, int]]:
         """
-        Return the AI-selected move by choosing the first move from the sorted valid moves.
+        Return the AI-selected move by choosing one of the top moves from the sorted valid moves.
+        If multiple moves have the same highest score, a random move is selected from them.
         """
         moves: List[Dict[str, Any]] = self.valid_moves(game_state, static_eval=False)
         if not moves:
             print("No valid moves available for AI.")
             exit(0)
-        return moves[0]["move"]
+
+        # Find the highest heuristic score among the moves
+        max_value: int = moves[0]["value"]
+        # Filter moves that have the highest score
+        top_moves: List[Dict[str, Any]] = [move for move in moves if move["value"] == max_value]
+        # Randomly select one of the top moves
+        selected_move: Dict[str, Any] = random.choice(top_moves)
+
+        return selected_move["move"]
 
     def play(self) -> None:
         """
