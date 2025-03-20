@@ -545,6 +545,7 @@ class MiniChess:
                 print("****************************")
                 print("*  GAME OVER- "+ winner + " WINS  *")
                 print("****************************")
+                self.display_board(self.current_game_state)  # Show final board
                 if self.trace_file:
                     next_turn: str = self.current_game_state['turn'].capitalize()
                     next_turn = "White" if next_turn == "Black" else "Black"
@@ -560,6 +561,7 @@ class MiniChess:
                 print("****************************")
                 print("*     DRAW - NO WINNER     *")
                 print("****************************")
+                self.display_board(self.current_game_state)  # Show final board
                 if self.trace_file:
                     self.trace_file.write("Game Over: DRAW\n")
                     self.trace_file.close()
