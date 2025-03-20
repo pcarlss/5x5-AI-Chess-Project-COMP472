@@ -14,7 +14,6 @@ import argparse
 import random
 from typing import List, Dict, Tuple, Optional, Any
 
-DEBUG = False  # Set to True to print debug messages
 BOARD_SIZE: int = 5  # Size of the board (5x5)
 RECURSION_DEPTH: int = 4  # Depth for minimax searches
 CAPTURE_VALUES: Dict[str, int] = {'k': 999, 'q': 9, 'b': 3, 'n': 3, 'p': 1}
@@ -222,14 +221,10 @@ class MiniChess:
                 value = -value
             return value
         elif self.eval_choice == "e3-Minimax w/ Alpha-Beta Pruning":
-            new_state = self.deep_copy_state(game_state)
-            if DEBUG:
-                print("DEBUG (e3): Original game state before move:", self.move_to_string(move))
-                self.display_board(game_state)
-            new_state = self.make_move(new_state, move)
-            if DEBUG:
-                print("DEBUG (e3): New game state after applying move:", self.move_to_string(move))
-                self.display_board(new_state)
+            new_state = self.deep_copy_state(game_state) # Deep copy the game state
+            new_state = self.make_move(new_state, move) # Simulate the move
+            # If the move is a capture, evaluate it using e1.
+
             # Determine maximizing player based on new_state's turn.
             maximizing: bool = True if new_state["turn"] == "white" else False
             value = self.minimax_search(new_state, RECURSION_DEPTH, maximizing, static_eval=True, alpha=-int(1e9), beta=int(1e9))
