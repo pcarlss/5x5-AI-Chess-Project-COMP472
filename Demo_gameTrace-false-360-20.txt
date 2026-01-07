@@ -1,0 +1,87 @@
+Game Parameters:
+Timeout: 360 seconds
+Max Turns (half-moves without capture): 20
+Play Mode: H-Ai
+Heuristic Choice: e2-Minimax evaluation
+
+Initial Board Configuration:
+5   bK  bQ  bB  bN   .
+4    .   .  bp  bp   .
+3    .   .   .   .   .
+2    .  wp  wp   .   .
+1    .  wN  wB  wQ  wK
+     A   B   C   D   E
+
+Turn #1: White to move
+Action: D1 D4
+New Board Configuration:
+5   bK  bQ  bB  bN   .
+4    .   .  bp  wQ   .
+3    .   .   .   .   .
+2    .  wp  wp   .   .
+1    .  wN  wB   .  wK
+     A   B   C   D   E
+
+CSE by depth: 1=340 (6%) 2=4,904 (93%)
+Average Branching Factor: 14.42
+Turn #1: Black to move
+Action: C5 D4
+New Board Configuration:
+5   bK  bQ   .  bN   .
+4    .   .  bp  bB   .
+3    .   .   .   .   .
+2    .  wp  wp   .   .
+1    .  wN  wB   .  wK
+     A   B   C   D   E
+
+CSE by depth: 1=848 (6%) 2=12,210 (93%)
+Average Branching Factor: 14.40
+Turn #2: White to move
+Action: B2 B3
+New Board Configuration:
+5   bK  bQ   .  bN   .
+4    .   .  bp  bB   .
+3    .  wp   .   .   .
+2    .   .  wp   .   .
+1    .  wN  wB   .  wK
+     A   B   C   D   E
+
+CSE by depth: 1=1,162 (6%) 2=15,528 (93%)
+Average Branching Factor: 13.36
+Turn #2: Black to move
+Action: C4 B3
+New Board Configuration:
+5   bK  bQ   .  bN   .
+4    .   .   .  bB   .
+3    .  bp   .   .   .
+2    .   .  wp   .   .
+1    .  wN  wB   .  wK
+     A   B   C   D   E
+
+CSE by depth: 1=1,588 (6%) 2=22,562 (93%)
+Average Branching Factor: 14.21
+Turn #3: White to move
+Action: E1 E2
+New Board Configuration:
+5   bK  bQ   .  bN   .
+4    .   .   .  bB   .
+3    .  bp   .   .   .
+2    .   .  wp   .  wK
+1    .  wN  wB   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=2,028 (6%) 2=27,602 (93%)
+Average Branching Factor: 13.61
+Turn #3: Black to move
+Action: B5 E2
+New Board Configuration:
+5   bK   .   .  bN   .
+4    .   .   .  bB   .
+3    .  bp   .   .   .
+2    .   .  wp   .  bQ
+1    .  wN  wB   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=2,520 (6%) 2=36,770 (93%)
+Average Branching Factor: 14.59
+Game Over: Black wins!

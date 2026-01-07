@@ -1,0 +1,84 @@
+Game Parameters:
+Timeout: 360 seconds
+Max Turns (half-moves without capture): 20
+Play Mode: H-H
+Heuristic Choice: e3-Minimax w/ Alpha-Beta Pruning
+
+Initial Board Configuration:
+5   bK  bQ  bB  bN   .
+4    .   .  bp  bp   .
+3    .   .   .   .   .
+2    .  wp  wp   .   .
+1    .  wN  wB  wQ  wK
+     A   B   C   D   E
+
+Turn #1: White to move
+Action: C2 C3
+New Board Configuration:
+5   bK  bQ  bB  bN   .
+4    .   .  bp  bp   .
+3    .   .  wp   .   .
+2    .  wp   .   .   .
+1    .  wN  wB  wQ  wK
+     A   B   C   D   E
+
+Turn #1: Black to move
+Action: D4 C3
+New Board Configuration:
+5   bK  bQ  bB  bN   .
+4    .   .  bp   .   .
+3    .   .  bp   .   .
+2    .  wp   .   .   .
+1    .  wN  wB  wQ  wK
+     A   B   C   D   E
+
+Turn #2: White to move
+Action: D1 D5
+New Board Configuration:
+5   bK  bQ  bB  wQ   .
+4    .   .  bp   .   .
+3    .   .  bp   .   .
+2    .  wp   .   .   .
+1    .  wN  wB   .  wK
+     A   B   C   D   E
+
+Turn #2: Black to move
+Action: C3 B2
+New Board Configuration:
+5   bK  bQ  bB  wQ   .
+4    .   .  bp   .   .
+3    .   .   .   .   .
+2    .  bp   .   .   .
+1    .  wN  wB   .  wK
+     A   B   C   D   E
+
+Turn #3: White to move
+Action: C1 D2
+New Board Configuration:
+5   bK  bQ  bB  wQ   .
+4    .   .  bp   .   .
+3    .   .   .   .   .
+2    .  bp   .  wB   .
+1    .  wN   .   .  wK
+     A   B   C   D   E
+
+Turn #3: Black to move
+Action: A5 A4
+New Board Configuration:
+5    .  bQ  bB  wQ   .
+4   bK   .  bp   .   .
+3    .   .   .   .   .
+2    .  bp   .  wB   .
+1    .  wN   .   .  wK
+     A   B   C   D   E
+
+Turn #4: White to move
+Action: B1 C3
+New Board Configuration:
+5    .  bQ  bB  wQ   .
+4   bK   .  bp   .   .
+3    .   .  wN   .   .
+2    .  bp   .  wB   .
+1    .   .   .   .  wK
+     A   B   C   D   E
+

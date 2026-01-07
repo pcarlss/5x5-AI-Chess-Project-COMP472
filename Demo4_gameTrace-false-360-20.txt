@@ -1,0 +1,567 @@
+Game Parameters:
+Timeout: 360 seconds
+Max Turns (half-moves without capture): 20
+Play Mode: Ai-Ai
+Heuristic Choice: e3-Minimax w/ Alpha-Beta Pruning
+
+Initial Board Configuration:
+5   bK  bQ  bB  bN   .
+4    .   .  bp  bp   .
+3    .   .   .   .   .
+2    .  wp  wp   .   .
+1    .  wN  wB  wQ  wK
+     A   B   C   D   E
+
+Turn #1: White to move
+Action: B2 B3
+New Board Configuration:
+5   bK  bQ  bB  bN   .
+4    .   .  bp  bp   .
+3    .  wp   .   .   .
+2    .   .  wp   .   .
+1    .  wN  wB  wQ  wK
+     A   B   C   D   E
+
+CSE by depth: 1=340 (0.3%) 2=1,262 (1%) 3=7,388 (6%) 4=20,308 (18%) 5=80,744 (73%)
+Average Branching Factor: 4.07
+Turn #1: Black to move
+Action: B5 B4
+New Board Configuration:
+5   bK   .  bB  bN   .
+4    .  bQ  bp  bp   .
+3    .  wp   .   .   .
+2    .   .  wp   .   .
+1    .  wN  wB  wQ  wK
+     A   B   C   D   E
+
+CSE by depth: 1=742 (0.3%) 2=2,492 (1%) 3=15,450 (6%) 4=38,678 (16%) 5=173,712 (75%)
+Average Branching Factor: 4.14
+Turn #2: White to move
+Action: C1 D2
+New Board Configuration:
+5   bK   .  bB  bN   .
+4    .  bQ  bp  bp   .
+3    .  wp   .   .   .
+2    .   .  wp  wB   .
+1    .  wN   .  wQ  wK
+     A   B   C   D   E
+
+CSE by depth: 1=1,150 (0.4%) 2=3,268 (1%) 3=20,892 (7%) 4=48,126 (16%) 5=223,124 (75%)
+Average Branching Factor: 4.04
+Turn #2: Black to move
+Action: C4 C3
+New Board Configuration:
+5   bK   .  bB  bN   .
+4    .  bQ   .  bp   .
+3    .  wp  bp   .   .
+2    .   .  wp  wB   .
+1    .  wN   .  wQ  wK
+     A   B   C   D   E
+
+CSE by depth: 1=1,444 (0.4%) 2=3,888 (1%) 3=24,794 (7%) 4=54,690 (15%) 5=259,288 (75%)
+Average Branching Factor: 4.00
+Turn #3: White to move
+Action: D2 C1
+New Board Configuration:
+5   bK   .  bB  bN   .
+4    .  bQ   .  bp   .
+3    .  wp  bp   .   .
+2    .   .  wp   .   .
+1    .  wN  wB  wQ  wK
+     A   B   C   D   E
+
+CSE by depth: 1=1,610 (0.4%) 2=4,346 (1%) 3=27,002 (7%) 4=60,148 (16%) 5=279,024 (74%)
+Average Branching Factor: 3.94
+Turn #3: Black to move
+Action: B4 B5
+New Board Configuration:
+5   bK  bQ  bB  bN   .
+4    .   .   .  bp   .
+3    .  wp  bp   .   .
+2    .   .  wp   .   .
+1    .  wN  wB  wQ  wK
+     A   B   C   D   E
+
+CSE by depth: 1=1,860 (0.4%) 2=4,884 (1%) 3=30,730 (7%) 4=67,918 (16%) 5=315,816 (74%)
+Average Branching Factor: 3.94
+Turn #4: White to move
+Action: B1 A3
+New Board Configuration:
+5   bK  bQ  bB  bN   .
+4    .   .   .  bp   .
+3   wN  wp  bp   .   .
+2    .   .  wp   .   .
+1    .   .  wB  wQ  wK
+     A   B   C   D   E
+
+CSE by depth: 1=2,232 (0.5%) 2=5,636 (1%) 3=35,394 (7%) 4=77,198 (16%) 5=354,226 (74%)
+Average Branching Factor: 3.89
+Turn #4: Black to move
+Action: C5 A3
+New Board Configuration:
+5   bK  bQ   .  bN   .
+4    .   .   .  bp   .
+3   bB  wp  bp   .   .
+2    .   .  wp   .   .
+1    .   .  wB  wQ  wK
+     A   B   C   D   E
+
+CSE by depth: 1=2,564 (0.5%) 2=6,248 (1%) 3=39,480 (7%) 4=84,146 (16%) 5=391,584 (74%)
+Average Branching Factor: 3.89
+Turn #5: White to move
+Action: C1 A3
+New Board Configuration:
+5   bK  bQ   .  bN   .
+4    .   .   .  bp   .
+3   wB  wp  bp   .   .
+2    .   .  wp   .   .
+1    .   .   .  wQ  wK
+     A   B   C   D   E
+
+CSE by depth: 1=2,906 (0.5%) 2=6,888 (1%) 3=43,956 (7%) 4=91,872 (16%) 5=426,682 (74%)
+Average Branching Factor: 3.87
+Turn #5: Black to move
+Action: D4 D3
+New Board Configuration:
+5   bK  bQ   .  bN   .
+4    .   .   .   .   .
+3   wB  wp  bp  bp   .
+2    .   .  wp   .   .
+1    .   .   .  wQ  wK
+     A   B   C   D   E
+
+CSE by depth: 1=3,236 (0.5%) 2=7,572 (1%) 3=48,394 (7%) 4=99,868 (15%) 5=466,160 (74%)
+Average Branching Factor: 3.87
+Turn #6: White to move
+Action: D1 D3
+New Board Configuration:
+5   bK  bQ   .  bN   .
+4    .   .   .   .   .
+3   wB  wp  bp  wQ   .
+2    .   .  wp   .   .
+1    .   .   .   .  wK
+     A   B   C   D   E
+
+CSE by depth: 1=3,544 (0.5%) 2=8,460 (1%) 3=51,912 (7%) 4=108,892 (16%) 5=489,998 (73%)
+Average Branching Factor: 3.78
+Turn #6: Black to move
+Action: B5 D3
+New Board Configuration:
+5   bK   .   .  bN   .
+4    .   .   .   .   .
+3   wB  wp  bp  bQ   .
+2    .   .  wp   .   .
+1    .   .   .   .  wK
+     A   B   C   D   E
+
+CSE by depth: 1=3,878 (0.6%) 2=9,004 (1%) 3=55,968 (7%) 4=113,916 (16%) 5=520,472 (74%)
+Average Branching Factor: 3.79
+Turn #7: White to move
+Action: B3 B4
+New Board Configuration:
+5   bK   .   .  bN   .
+4    .  wp   .   .   .
+3   wB   .  bp  bQ   .
+2    .   .  wp   .   .
+1    .   .   .   .  wK
+     A   B   C   D   E
+
+CSE by depth: 1=4,116 (0.6%) 2=9,424 (1%) 3=57,968 (8%) 4=116,728 (16%) 5=534,374 (73%)
+Average Branching Factor: 3.76
+Turn #7: Black to move
+Action: A5 B5
+New Board Configuration:
+5    .  bK   .  bN   .
+4    .  wp   .   .   .
+3   wB   .  bp  bQ   .
+2    .   .  wp   .   .
+1    .   .   .   .  wK
+     A   B   C   D   E
+
+CSE by depth: 1=4,310 (0.6%) 2=9,660 (1%) 3=58,546 (8%) 4=117,630 (16%) 5=536,338 (73%)
+Average Branching Factor: 3.72
+Turn #8: White to move
+Action: C2 D3
+New Board Configuration:
+5    .  bK   .  bN   .
+4    .  wp   .   .   .
+3   wB   .  bp  wp   .
+2    .   .   .   .   .
+1    .   .   .   .  wK
+     A   B   C   D   E
+
+CSE by depth: 1=4,478 (0.6%) 2=9,950 (1%) 3=60,436 (8%) 4=120,074 (16%) 5=553,684 (73%)
+Average Branching Factor: 3.72
+Turn #8: Black to move
+Action: D5 E3
+New Board Configuration:
+5    .  bK   .   .   .
+4    .  wp   .   .   .
+3   wB   .  bp  wp  bN
+2    .   .   .   .   .
+1    .   .   .   .  wK
+     A   B   C   D   E
+
+CSE by depth: 1=4,592 (0.6%) 2=10,192 (1%) 3=61,492 (8%) 4=122,160 (16%) 5=560,078 (73%)
+Average Branching Factor: 3.71
+Turn #9: White to move
+Action: E1 E2
+New Board Configuration:
+5    .  bK   .   .   .
+4    .  wp   .   .   .
+3   wB   .  bp  wp  bN
+2    .   .   .   .  wK
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=4,716 (0.6%) 2=10,446 (1%) 3=62,510 (8%) 4=123,838 (16%) 5=564,918 (73%)
+Average Branching Factor: 3.69
+Turn #9: Black to move
+Action: E3 D5
+New Board Configuration:
+5    .  bK   .  bN   .
+4    .  wp   .   .   .
+3   wB   .  bp  wp   .
+2    .   .   .   .  wK
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=4,874 (0.6%) 2=10,866 (1%) 3=63,898 (8%) 4=126,846 (16%) 5=573,350 (73%)
+Average Branching Factor: 3.65
+Turn #10: White to move
+Action: D3 D4
+New Board Configuration:
+5    .  bK   .  bN   .
+4    .  wp   .  wp   .
+3   wB   .  bp   .   .
+2    .   .   .   .  wK
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=4,990 (0.6%) 2=11,134 (1%) 3=64,768 (8%) 4=128,722 (16%) 5=578,412 (73%)
+Average Branching Factor: 3.63
+Turn #10: Black to move
+Action: B5 A4
+New Board Configuration:
+5    .   .   .  bN   .
+4   bK  wp   .  wp   .
+3   wB   .  bp   .   .
+2    .   .   .   .  wK
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=5,124 (0.6%) 2=11,478 (1%) 3=66,160 (8%) 4=131,794 (16%) 5=587,726 (73%)
+Average Branching Factor: 3.61
+Turn #11: White to move
+Action: E2 E1
+New Board Configuration:
+5    .   .   .  bN   .
+4   bK  wp   .  wp   .
+3   wB   .  bp   .   .
+2    .   .   .   .   .
+1    .   .   .   .  wK
+     A   B   C   D   E
+
+CSE by depth: 1=5,256 (0.6%) 2=11,784 (1%) 3=67,440 (8%) 4=134,466 (16%) 5=594,676 (73%)
+Average Branching Factor: 3.60
+Turn #11: Black to move
+Action: A4 B5
+New Board Configuration:
+5    .  bK   .  bN   .
+4    .  wp   .  wp   .
+3   wB   .  bp   .   .
+2    .   .   .   .   .
+1    .   .   .   .  wK
+     A   B   C   D   E
+
+CSE by depth: 1=5,352 (0.6%) 2=12,090 (1%) 3=68,466 (8%) 4=137,284 (16%) 5=602,238 (72%)
+Average Branching Factor: 3.58
+Turn #12: White to move
+Action: E1 E2
+New Board Configuration:
+5    .  bK   .  bN   .
+4    .  wp   .  wp   .
+3   wB   .  bp   .   .
+2    .   .   .   .  wK
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=5,436 (0.7%) 2=12,290 (1%) 3=69,254 (8%) 4=138,792 (16%) 5=606,058 (72%)
+Average Branching Factor: 3.57
+Turn #12: Black to move
+Action: C3 C2
+New Board Configuration:
+5    .  bK   .  bN   .
+4    .  wp   .  wp   .
+3   wB   .   .   .   .
+2    .   .  bp   .  wK
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=5,570 (0.7%) 2=12,634 (1%) 3=70,646 (8%) 4=141,864 (16%) 5=615,372 (72%)
+Average Branching Factor: 3.55
+Turn #13: White to move
+Action: E2 D2
+New Board Configuration:
+5    .  bK   .  bN   .
+4    .  wp   .  wp   .
+3   wB   .   .   .   .
+2    .   .  bp  wK   .
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=5,696 (0.7%) 2=12,924 (1%) 3=71,858 (8%) 4=144,366 (16%) 5=620,802 (72%)
+Average Branching Factor: 3.53
+Turn #13: Black to move
+Action: C2 C1
+New Board Configuration:
+5    .  bK   .  bN   .
+4    .  wp   .  wp   .
+3   wB   .   .   .   .
+2    .   .   .  wK   .
+1    .   .  bQ   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=5,900 (0.7%) 2=13,324 (1%) 3=73,594 (8%) 4=146,908 (16%) 5=630,268 (72%)
+Average Branching Factor: 3.52
+Turn #14: White to move
+Action: D2 C1
+New Board Configuration:
+5    .  bK   .  bN   .
+4    .  wp   .  wp   .
+3   wB   .   .   .   .
+2    .   .   .   .   .
+1    .   .  wK   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=6,236 (0.7%) 2=13,852 (1%) 3=77,628 (8%) 4=152,400 (16%) 5=671,264 (72%)
+Average Branching Factor: 3.55
+Turn #14: Black to move
+Action: B5 C4
+New Board Configuration:
+5    .   .   .  bN   .
+4    .  wp  bK  wp   .
+3   wB   .   .   .   .
+2    .   .   .   .   .
+1    .   .  wK   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=6,356 (0.7%) 2=14,228 (1%) 3=79,302 (8%) 4=155,580 (16%) 5=683,918 (72%)
+Average Branching Factor: 3.54
+Turn #15: White to move
+Action: C1 B2
+New Board Configuration:
+5    .   .   .  bN   .
+4    .  wp  bK  wp   .
+3   wB   .   .   .   .
+2    .  wK   .   .   .
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=6,496 (0.7%) 2=14,620 (1%) 3=81,054 (8%) 4=159,818 (16%) 5=694,390 (72%)
+Average Branching Factor: 3.53
+Turn #15: Black to move
+Action: D5 E3
+New Board Configuration:
+5    .   .   .   .   .
+4    .  wp  bK  wp   .
+3   wB   .   .   .  bN
+2    .  wK   .   .   .
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=6,664 (0.7%) 2=15,054 (1%) 3=82,570 (8%) 4=163,856 (16%) 5=707,992 (72%)
+Average Branching Factor: 3.51
+Turn #16: White to move
+Action: B2 A2
+New Board Configuration:
+5    .   .   .   .   .
+4    .  wp  bK  wp   .
+3   wB   .   .   .  bN
+2   wK   .   .   .   .
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=6,862 (0.7%) 2=15,400 (1%) 3=84,076 (8%) 4=167,336 (16%) 5=715,378 (72%)
+Average Branching Factor: 3.49
+Turn #16: Black to move
+Action: E3 D5
+New Board Configuration:
+5    .   .   .  bN   .
+4    .  wp  bK  wp   .
+3   wB   .   .   .   .
+2   wK   .   .   .   .
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=7,034 (0.7%) 2=15,820 (1%) 3=85,838 (8%) 4=170,742 (16%) 5=732,964 (72%)
+Average Branching Factor: 3.49
+Turn #17: White to move
+Action: A2 B2
+New Board Configuration:
+5    .   .   .  bN   .
+4    .  wp  bK  wp   .
+3   wB   .   .   .   .
+2    .  wK   .   .   .
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=7,174 (0.7%) 2=16,122 (1%) 3=87,314 (8%) 4=173,522 (16%) 5=741,188 (72%)
+Average Branching Factor: 3.48
+Turn #17: Black to move
+Action: D5 E3
+New Board Configuration:
+5    .   .   .   .   .
+4    .  wp  bK  wp   .
+3   wB   .   .   .  bN
+2    .  wK   .   .   .
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=7,342 (0.7%) 2=16,556 (1%) 3=88,830 (8%) 4=177,560 (16%) 5=754,790 (72%)
+Average Branching Factor: 3.47
+Turn #18: White to move
+Action: B2 A2
+New Board Configuration:
+5    .   .   .   .   .
+4    .  wp  bK  wp   .
+3   wB   .   .   .  bN
+2   wK   .   .   .   .
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=7,540 (0.7%) 2=16,902 (1%) 3=90,336 (8%) 4=181,040 (17%) 5=762,176 (72%)
+Average Branching Factor: 3.45
+Turn #18: Black to move
+Action: E3 D5
+New Board Configuration:
+5    .   .   .  bN   .
+4    .  wp  bK  wp   .
+3   wB   .   .   .   .
+2   wK   .   .   .   .
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=7,712 (0.7%) 2=17,322 (1%) 3=92,098 (8%) 4=184,446 (17%) 5=779,762 (72%)
+Average Branching Factor: 3.45
+Turn #19: White to move
+Action: A2 B2
+New Board Configuration:
+5    .   .   .  bN   .
+4    .  wp  bK  wp   .
+3   wB   .   .   .   .
+2    .  wK   .   .   .
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=7,852 (0.7%) 2=17,624 (1%) 3=93,574 (8%) 4=187,226 (17%) 5=787,986 (72%)
+Average Branching Factor: 3.44
+Turn #19: Black to move
+Action: C4 B5
+New Board Configuration:
+5    .  bK   .  bN   .
+4    .  wp   .  wp   .
+3   wB   .   .   .   .
+2    .  wK   .   .   .
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=8,020 (0.7%) 2=18,058 (1%) 3=95,090 (8%) 4=191,264 (17%) 5=801,588 (71%)
+Average Branching Factor: 3.43
+Turn #20: White to move
+Action: B2 B3
+New Board Configuration:
+5    .  bK   .  bN   .
+4    .  wp   .  wp   .
+3   wB  wK   .   .   .
+2    .   .   .   .   .
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=8,132 (0.7%) 2=18,452 (1%) 3=96,280 (8%) 4=194,284 (17%) 5=806,352 (71%)
+Average Branching Factor: 3.41
+Turn #20: Black to move
+Action: D5 E3
+New Board Configuration:
+5    .  bK   .   .   .
+4    .  wp   .  wp   .
+3   wB  wK   .   .  bN
+2    .   .   .   .   .
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=8,288 (0.7%) 2=18,762 (1%) 3=97,572 (8%) 4=195,760 (17%) 5=813,252 (71%)
+Average Branching Factor: 3.41
+Turn #21: White to move
+Action: B3 C3
+New Board Configuration:
+5    .  bK   .   .   .
+4    .  wp   .  wp   .
+3   wB   .  wK   .  bN
+2    .   .   .   .   .
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=8,450 (0.7%) 2=19,128 (1%) 3=98,654 (8%) 4=198,056 (17%) 5=817,276 (71%)
+Average Branching Factor: 3.39
+Turn #21: Black to move
+Action: E3 D5
+New Board Configuration:
+5    .  bK   .  bN   .
+4    .  wp   .  wp   .
+3   wB   .  wK   .   .
+2    .   .   .   .   .
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=8,628 (0.7%) 2=19,566 (1%) 3=100,574 (8%) 4=201,594 (17%) 5=831,004 (71%)
+Average Branching Factor: 3.38
+Turn #22: White to move
+Action: C3 C2
+New Board Configuration:
+5    .  bK   .  bN   .
+4    .  wp   .  wp   .
+3   wB   .   .   .   .
+2    .   .  wK   .   .
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=8,756 (0.7%) 2=19,970 (1%) 3=101,620 (8%) 4=204,426 (17%) 5=834,536 (71%)
+Average Branching Factor: 3.37
+Turn #22: Black to move
+Action: B5 C4
+New Board Configuration:
+5    .   .   .  bN   .
+4    .  wp  bK  wp   .
+3   wB   .   .   .   .
+2    .   .  wK   .   .
+1    .   .   .   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=8,940 (0.7%) 2=20,452 (1%) 3=103,980 (8%) 4=208,074 (17%) 5=851,018 (71%)
+Average Branching Factor: 3.37
+Turn #23: White to move
+Action: C2 C1
+New Board Configuration:
+5    .   .   .  bN   .
+4    .  wp  bK  wp   .
+3   wB   .   .   .   .
+2    .   .   .   .   .
+1    .   .  wK   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=9,160 (0.8%) 2=20,954 (1%) 3=106,120 (8%) 4=212,820 (17%) 5=863,388 (71%)
+Average Branching Factor: 3.35
+Turn #23: Black to move
+Action: D5 E3
+New Board Configuration:
+5    .   .   .   .   .
+4    .  wp  bK  wp   .
+3   wB   .   .   .  bN
+2    .   .   .   .   .
+1    .   .  wK   .   .
+     A   B   C   D   E
+
+CSE by depth: 1=9,308 (0.8%) 2=21,456 (1%) 3=108,110 (8%) 4=218,218 (17%) 5=882,202 (71%)
+Average Branching Factor: 3.35
+Game Over: DRAW

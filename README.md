@@ -16,14 +16,16 @@ This project is a simplified version of chess, called **Mini Chess**, designed f
   - **Human vs Human (H-H)**: Two players take turns making moves.
   - **Human vs AI (H-Ai)**: A human player competes against the AI.
   - **AI vs AI (Ai-Ai)**: Two AI agents play against each other.
-- **Move Validation**: Ensures that all moves are legal according to the rules of Mini Chess.
-- **Pawn Promotion**: Promotes a pawn to a queen when it reaches the last row.
-- **Capture Detection**: Detects and announces captures.
+  - **Move Validation**: Ensures that all moves are legal according to the rules of Mini Chess.
+  - **Pawn Promotion**: Promotes a pawn to a queen when it reaches the last row.
+  - **Capture Detection**: Detects and announces captures.
+
 - **Heuristic Move Evaluation**:
   - **e0 - Static Mass Evaluation**: Assesses the board using piece values.
   - **e1 - Direct Capture Evaluation**: Evaluates moves based on immediate capture potential.
   - **e2 - Minimax Evaluation**: Uses a minimax search to evaluate moves.
   - **e3 - Minimax with Alpha-Beta Pruning**: Optimizes minimax search using alpha-beta pruning.
+  
 - **Game Logging**: Logs the game state and moves to a trace file for review, including AI search statistics in AI modes.
 - **Exit Option**: Players can type "exit" to quit the game at any time.
 
